@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Invoice Pembayaran</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  background:#f4f7f6;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+.card{
+  background:white;
+  width:400px;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+}
+
+.success{
+  text-align:center;
+  color:#2e7d32;
+  font-size:22px;
+  margin-bottom:20px;
+}
+
+.line{
+  height:1px;
+  background:#eee;
+  margin:15px 0;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin:8px 0;
+  font-size:14px;
+}
+
+.total{
+  font-size:18px;
+  font-weight:bold;
+  color:#2e7d32;
+}
+
+button{
+  margin-top:20px;
+  width:100%;
+  padding:12px;
+  background:#2e7d32;
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+button:hover{
+  background:#1b5e20;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="success">✅ Pembayaran Berhasil</div>
+
+<div class="row">
+  <span>No Invoice</span>
+  <span id="invoice"></span>
+</div>
+
+<div class="row">
+  <span>Produk</span>
+  <span id="product"></span>
+</div>
+
+<div class="row">
+  <span>Umur</span>
+  <span id="age"></span>
+</div>
+
+<div class="row">
+  <span>Metode</span>
+  <span id="method"></span>
+</div>
+
+<div class="line"></div>
+
+<div class="row total">
+  <span>Total Bayar</span>
+  <span id="price"></span>
+</div>
+
+<div class="line"></div>
+
+<div class="row">
+  <span>Status</span>
+  <span style="color:green;">Aktif</span>
+</div>
+
+<button onclick="goHistory()">Lihat Riwayat</button>
+
+</div>
+
+<script>
+
+const data = JSON.parse(localStorage.getItem('last_payment'));
+
+if(!data){
+  alert("Tidak ada transaksi!");
+  window.location.href = "products.html";
+}
+
+document.getElementById('invoice').innerText = data.id || "INV-UNKNOWN";
+document.getElementById('product').innerText = data.product_id;
+document.getElementById('age').innerText = data.age;
+document.getElementById('method').innerText = data.method || data.payment_method;
+document.getElementById('price').innerText = "Rp " + Number(data.premium).toLocaleString();
+
+function goHistory(){
+  window.location.href = "history.html";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Brooklyn</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#f4f7f6;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.logo{ width:120px; }
+
+.logout-btn{
+  padding:8px 15px;
+  border:none;
+  border-radius:8px;
+  background:#e53935;
+  color:white;
+  cursor:pointer;
+}
+
+.dashboard{
+  padding:40px;
+}
+
+.dashboard h2{
+  margin-bottom:20px;
+  color:#2e7d32;
+}
+
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.tab-btn{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#ddd;
+  font-weight:500;
+}
+
+.tab-btn.active{
+  background:#2e7d32;
+  color:white;
+}
+
+.table{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+  max-height:400px;
+  overflow-y:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+th{
+  color:#2e7d32;
+}
+
+tr:hover{
+  background:#f9f9f9;
+}
+
+td button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-right:5px;
+}
+
+.approve{
+  background:#4caf50;
+  color:white;
+}
+
+.reject{
+  background:#e53935;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <img src="assets/images/logo.png" class="logo">
+  <button onclick="logout()" class="logout-btn">Logout</button>
+</header>
+
+<div class="dashboard">
+
+<h2>Dashboard Admin</h2>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('claims')">Claims</button>
+  <button class="tab-btn" onclick="showTab('policies')">Policies</button>
+  <button class="tab-btn" onclick="showTab('messages')">Messages</button>
+</div>
+
+<div id="claims" class="table tab-content">
+  <h3>Data Claims</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Policy</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="claimTable"></tbody>
+  </table>
+</div>
+
+
+<div id="policies" class="table tab-content" style="display:none;">
+  <h3>Data Policies</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Product</th>
+        <th>Premium</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="policyTable"></tbody>
+  </table>
+</div>
+
+
+<div id="messages" class="table tab-content" style="display:none;">
+  <h3>Pesan Masuk</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Email</th>
+        <th>Pesan</th>
+        <th>Tanggal</th>
+      </tr>
+    </thead>
+    <tbody id="messageTable"></tbody>
+  </table>
+</div>
+
+</div>
+
+<script>
+
+if(localStorage.getItem('role') !== 'admin'){
+  alert("Akses ditolak!");
+  window.location.href = "index.html";
+}
+
+
+function showTab(tabName){
+
+  document.querySelectorAll('.tab-content').forEach(el=>{
+    el.style.display = 'none';
+  });
+
+  document.getElementById(tabName).style.display = 'block';
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.remove('active');
+  });
+
+  event.target.classList.add('active');
+}
+
+
+async function loadClaims(){
+  const table = document.getElementById('claimTable');
+
+  const res = await fetch('http://localhost:3000/claims',{
+    headers:{
+      'user_id': localStorage.getItem('user_id'),
+      'role': localStorage.getItem('role')
+    }
+  });
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(c=>{
+    let color = "orange";
+    if(c.status === "approved") color = "green";
+    if(c.status === "rejected") color = "red";
+
+    html += `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.policy_id}</td>
+        <td>${c.description}</td>
+        <td style="color:${color}; font-weight:bold;">
+          ${c.status}
+        </td>
+        <td>
+          <button class="approve" onclick="updateStatus(${c.id},'approved')">Approve</button>
+          <button class="reject" onclick="updateStatus(${c.id},'rejected')">Reject</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  table.innerHTML = html;
+}
+
+async function updateStatus(id, status){
+  await fetch(`http://localhost:3000/claims/${id}`,{
+    method:'PUT',
+    headers:{
+      'Content-Type':'application/json',
+      'user_id': localStorage.getItem('user_id'),
+      'role': localStorage.getItem('role')
+    },
+    body: JSON.stringify({status})
+  });
+
+  alert("Status diupdate");
+  loadClaims();
+}
+
+async function loadPolicies(){
+  const table = document.getElementById('policyTable');
+
+  const res = await fetch('http://localhost:3000/policies',{
+    headers:{
+      'user_id': localStorage.getItem('user_id'),
+      'role': localStorage.getItem('role')
+    }
+  });
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(p=>{
+    html += `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.user_id}</td>
+        <td>${p.product_id}</td>
+        <td>Rp ${p.premium}</td>
+        <td>${p.status}</td>
+      </tr>
+    `;
+  });
+
+  table.innerHTML = html;
+}
+
+async function loadMessages(){
+  const table = document.getElementById('messageTable');
+
+  const res = await fetch('http://localhost:3000/messages',{
+    headers:{
+      'user_id': localStorage.getItem('user_id'),
+      'role': localStorage.getItem('role')
+    }
+  });
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(m=>{
+    html += `
+      <tr>
+        <td>${m.name}</td>
+        <td>${m.email}</td>
+        <td>${m.message}</td>
+        <td>${m.created_at || '-'}</td>
+      </tr>
+    `;
+  });
+
+  table.innerHTML = html;
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadClaims();
+  loadPolicies();
+  loadMessages();
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Layanan - Brooklyn Insurance</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  font-family:'Poppins',sans-serif;
+  margin:0;
+  background:#f4f7f6;
+}
+
+/* NAVBAR */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* HERO */
+.hero{
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:white;
+  text-align:center;
+  padding:70px 20px;
+}
+
+.hero h1{
+  margin-bottom:10px;
+}
+
+.hero p{
+  opacity:0.9;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1100px;
+  margin:-40px auto 40px;
+  padding:40px;
+  background:white;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:25px;
+}
+
+/* CARD */
+.card{
+  background:#f9f9f9;
+  padding:25px;
+  border-radius:18px;
+  text-align:center;
+  transition:0.3s;
+  cursor:pointer;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+  background:#e8f5e9;
+}
+
+/* ICON */
+.icon{
+  font-size:40px;
+  margin-bottom:10px;
+}
+
+/* TITLE */
+.card h3{
+  color:#2e7d32;
+  margin-bottom:10px;
+}
+
+/* BUTTON */
+.btn{
+  margin-top:30px;
+  display:inline-block;
+  padding:12px 25px;
+  background:#2e7d32;
+  color:white;
+  border-radius:10px;
+  text-decoration:none;
+}
+
+.btn:hover{
+  background:#1b5e20;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  width:120px;
+}
+
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
+  transition:0.2s;
+}
+
+.nav-links a:hover{
+  color:#2e7d32;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+/* USER DROPDOWN */
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  position:relative;
+}
+
+.user-avatar{
+  width:35px;
+  height:35px;
+  background:#2e7d32;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.dropdown{
+  position:absolute;
+  top:60px;
+  right:0;
+  background:white;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  display:none;
+
+  /* 🔥 INI KUNCI */
+  flex-direction:column;
+  padding:10px 0;
+  min-width:160px;
+}
+
+/* ITEM */
+.dropdown a{
+  display:block;   
+  padding:12px 20px;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+  transition:0.2s;
+}
+
+/* HOVER */
+.dropdown a:hover{
+  background:#f5f5f5;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div id="navMenu" class="nav-links"></div>
+  </div>
+
+  <div id="navRight" class="nav-right"></div>
+</header>
+
+<div class="hero">
+  <h1>Layanan Kami</h1>
+  <p>Kami hadir untuk memberikan pengalaman asuransi yang mudah, cepat, dan transparan</p>
+</div>
+
+<div class="container">
+
+  <div class="grid">
+
+    <div class="card" onclick="go('products.html')">
+      <img src="assets/images/products/layanan1.jpg" class="icon">
+      <h3>Pengajuan Polis</h3>
+      <p>Beli dan aktifkan polis asuransi dengan proses cepat dan 100% online.</p>
+    </div>
+
+    <div class="card" onclick="go('claim.html')">
+      <img src="assets/images/products/layanan2.jpg" class="icon">
+      <h3>Pengajuan Klaim</h3>
+      <p>Ajukan klaim dengan mudah dan pantau status secara real-time.</p>
+    </div>
+
+    <div class="card" onclick="go('history.html')">
+      <img src="assets/images/products/layanan3.jpg" class="icon">
+      <h3>Manajemen Polis</h3>
+      <p>Lihat riwayat, status polis, dan kelola semua asuransi Anda dalam satu tempat.</p>
+    </div>
+
+    <div class="card" onclick="go('contact.html')">
+      <img src="assets/images/products/layanan4.jpg" class="icon">
+      <h3>Layanan Customer</h3>
+      <p>Tim kami siap membantu Anda 24/7 untuk semua kebutuhan asuransi.</p>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;">
+    <a href="products.html" class="btn">Mulai Sekarang</a>
+  </div>
+
+</div>
+
+<script>
+function go(url){
+  window.location.href = url;
+}
+</script>
+<script src="script.js"></script>
+</body>
+</html>

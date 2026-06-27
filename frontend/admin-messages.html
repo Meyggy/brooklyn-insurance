@@ -1,0 +1,23 @@
+<div id="data"></div>
+
+<script>
+async function load(){
+  const res = await fetch('http://localhost:3000/messages');
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(m => {
+    html += `
+      <div style="background:white; padding:15px; margin:10px;">
+        <b>${m.name}</b> (${m.email})<br>
+        ${m.message}
+      </div>
+    `;
+  });
+
+  document.getElementById('data').innerHTML = html;
+}
+
+load();
+</script>

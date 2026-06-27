@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Detail Produk</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  margin:0;
+  background:#f4f7f6;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  padding:15px 40px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+.logo{width:120px;}
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+}
+
+.back-btn{
+  margin:20px 40px;
+  padding:10px 20px;
+  background:#e8f5e9;
+  color:#2e7d32;
+  border-radius:10px;
+  cursor:pointer;
+  display:inline-block;
+}
+
+.hero{
+  display:flex;
+  align-items:center;
+  padding:80px 60px;
+  gap:50px;
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:white;
+}
+.hero img{
+  width:45%;
+  height:320px;
+  object-fit:cover;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.25);
+}
+.hero-text h1{
+  font-size:42px;
+}
+.hero-text p{
+  line-height:1.7;
+}
+
+.cta button{
+  padding:12px 20px;
+  margin-right:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+.btn-main{
+  background:white;
+  color:#2e7d32;
+}
+.btn-outline{
+  background:transparent;
+  border:2px solid white;
+  color:white;
+}
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin:40px 0;
+}
+.tab{
+  padding:10px 18px;
+  border:none;
+  border-radius:20px;
+  background:#e8f5e9;
+  cursor:pointer;
+}
+.tab.active{
+  background:#2e7d32;
+  color:white;
+}
+
+.tab-content{
+  display:none;
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+.tab-content.active{
+  display:block;
+}
+
+.tab-content ul{
+  line-height:1.8;
+}
+
+.simulasi{
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  max-width:400px;
+  margin:40px auto;
+  text-align:center;
+}
+.simulasi input, select{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+}
+.simulasi button{
+  width:100%;
+  padding:12px;
+  background:#2e7d32;
+  color:white;
+  border:none;
+  border-radius:10px;
+}
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  width:120px;
+}
+
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
+  transition:0.2s;
+}
+
+.nav-links a:hover{
+  color:#2e7d32;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  position:relative;
+}
+
+.user-avatar{
+  width:35px;
+  height:35px;
+  background:#2e7d32;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.dropdown{
+  position:absolute;
+  top:60px;
+  right:0;
+  background:white;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  display:none;
+
+  flex-direction:column;
+  padding:10px 0;
+  min-width:160px;
+}
+
+.dropdown a{
+  display:block;   
+  padding:12px 20px;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.dropdown a:hover{
+  background:#f5f5f5;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div id="navMenu" class="nav-links"></div>
+  </div>
+
+  <div id="navRight" class="nav-right"></div>
+</header>
+
+  <div id="navRight" class="nav-right"></div>
+</header>
+
+<div class="back-btn" onclick="history.back()">Kembali</div>
+
+<div class="hero">
+  <img id="img">
+  <div class="hero-text">
+    <h1 id="name"></h1>
+    <p id="desc"></p>
+
+    <div class="cta">
+      <button class="btn-main" onclick="lanjut()">Beli Sekarang</button>
+      <button class="btn-outline" onclick="scrollSimulasi()">Hitung Premi</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="openTab(event,'kenali')">Kenali</button>
+  <button class="tab" onclick="openTab(event,'manfaat')">Manfaat</button>
+  <button class="tab" onclick="openTab(event,'syarat')">Syarat</button>
+  <button class="tab" onclick="openTab(event,'risiko')">Risiko</button>
+  <button class="tab" onclick="openTab(event,'biaya')">Biaya</button>
+  <button class="tab" onclick="openTab(event,'klaim')">Klaim</button>
+</div>
+
+<div id="kenali" class="tab-content active"></div>
+<div id="manfaat" class="tab-content"></div>
+<div id="syarat" class="tab-content"></div>
+<div id="risiko" class="tab-content"></div>
+<div id="biaya" class="tab-content"></div>
+<div id="klaim" class="tab-content"></div>
+
+<div class="simulasi" id="simulasi">
+  <h3>Simulasi Premi</h3>
+  <input type="number" id="age" placeholder="Umur">
+  <select id="plan">
+    <option value="1">Basic</option>
+    <option value="1.5">Standard</option>
+    <option value="2">Premium</option>
+  </select>
+  <button onclick="hitung()">Hitung</button>
+  <div id="hasil"></div>
+</div>
+
+<script>
+
+const id = new URLSearchParams(window.location.search).get('id');
+
+const images = {
+  1: "assets/images/products/kesehatan.jpg",
+  2: "assets/images/products/jiwa.jpg",
+  3: "assets/images/products/pendidikan.jpg"
+};
+
+const data = {
+  1:{
+    name:"Asuransi Kesehatan",
+    desc:"Perlindungan kesehatan komprehensif dengan akses ke 500+ rumah sakit terbaik di seluruh Indonesia. Nikmati layanan cashless tanpa perlu bayar di depan dan lindungi diri Anda dari biaya medis yang terus meningkat setiap tahun.",
+
+    kenali:`
+    Produk ini memberikan perlindungan menyeluruh terhadap berbagai risiko medis mulai dari rawat inap, operasi, hingga perawatan lanjutan. Dirancang untuk memastikan Anda mendapatkan layanan kesehatan terbaik tanpa beban finansial yang besar.
+    `,
+
+    manfaat:`
+    <ul>
+      <li>Biaya rawat inap hingga Rp1.000.000.000 per tahun</li>
+      <li>Sistem cashless di 500+ rumah sakit rekanan</li>
+      <li>Biaya operasi besar & kecil ditanggung</li>
+      <li>Obat-obatan & tindakan medis termasuk dalam manfaat</li>
+      <li>Ambulans darurat ditanggung sesuai ketentuan</li>
+      <li>Klaim cepat dan transparan</li>
+    </ul>
+    `,
+
+    syarat:`
+    <ul>
+      <li>Usia masuk: 18 – 60 tahun</li>
+      <li>Tidak memiliki riwayat penyakit kritis saat pendaftaran</li>
+      <li>Mengisi data kesehatan dengan jujur</li>
+      <li>Masa tunggu 30 hari sejak polis aktif</li>
+    </ul>
+    `,
+
+    risiko:`
+    <ul>
+      <li>Klaim dapat ditolak jika data tidak sesuai / tidak jujur</li>
+      <li>Penyakit tertentu memiliki masa tunggu khusus</li>
+      <li>Polis menjadi tidak aktif jika premi tidak dibayar</li>
+    </ul>
+    `,
+
+    biaya:`
+    <ul>
+      <li>Basic: Rp100.000 / bulan</li>
+      <li>Standard: Rp200.000 / bulan</li>
+      <li>Premium: Rp400.000 / bulan</li>
+      <li>Premi menyesuaikan usia & plan</li>
+    </ul>
+    `,
+
+    klaim:`
+    <ul>
+      <li>Cashless langsung di rumah sakit rekanan</li>
+      <li>Reimbursement (penggantian biaya)</li>
+      <li>Proses klaim rata-rata < 24 jam</li>
+    </ul>
+    `
+  },
+
+  2:{
+    name:"Asuransi Jiwa Keluarga",
+    desc:"Memberikan perlindungan finansial bagi keluarga tercinta dengan santunan hingga ratusan juta rupiah. Solusi terbaik untuk memastikan keluarga tetap aman secara ekonomi ketika risiko terjadi.",
+
+    kenali:`
+    Produk ini dirancang untuk melindungi keluarga dari risiko finansial akibat meninggal dunia atau cacat tetap pada tertanggung, sehingga keluarga tetap dapat melanjutkan kehidupan dengan stabil.
+    `,
+
+    manfaat:`
+    <ul>
+      <li>Santunan meninggal dunia hingga Rp500.000.000</li>
+      <li>Perlindungan cacat tetap total & sebagian</li>
+      <li>Masa perlindungan fleksibel hingga 20 tahun</li>
+      <li>Premi tetap (tidak naik setiap tahun)</li>
+      <li>Cocok untuk tulang punggung keluarga</li>
+    </ul>
+    `,
+
+    syarat:`
+    <ul>
+      <li>Usia masuk: 18 – 55 tahun</li>
+      <li>Memiliki penghasilan tetap</li>
+      <li>Tidak dalam kondisi sakit berat saat pendaftaran</li>
+      <li>Mengisi data secara lengkap dan valid</li>
+    </ul>
+    `,
+
+    risiko:`
+    <ul>
+      <li>Klaim tidak dibayarkan jika melanggar ketentuan polis</li>
+      <li>Tidak mencakup risiko tertentu (misalnya bunuh diri dalam periode awal)</li>
+      <li>Polis batal jika premi tidak dibayar</li>
+    </ul>
+    `,
+
+    biaya:`
+    <ul>
+      <li>Mulai dari Rp150.000 / bulan</li>
+      <li>Tergantung usia dan nilai pertanggungan</li>
+    </ul>
+    `,
+
+    klaim:`
+    <ul>
+      <li>Diajukan oleh ahli waris</li>
+      <li>Dokumen: KTP, KK, dan surat kematian</li>
+      <li>Proses cepat dan transparan</li>
+    </ul>
+    `
+  },
+
+  3:{
+    name:"Asuransi Pendidikan Anak",
+    desc:"Jaminan masa depan pendidikan anak dengan perencanaan keuangan yang matang. Pastikan anak Anda tetap bisa meraih pendidikan terbaik tanpa hambatan biaya.",
+
+    kenali:`
+    Produk ini menggabungkan perlindungan jiwa dan perencanaan dana pendidikan, sehingga dana pendidikan anak tetap tersedia meskipun terjadi risiko pada orang tua.
+    `,
+
+    manfaat:`
+    <ul>
+      <li>Dana pendidikan hingga jenjang kuliah</li>
+      <li>Pencairan bertahap (SD, SMP, SMA, hingga kuliah)</li>
+      <li>Perlindungan orang tua (dana tetap cair jika risiko terjadi)</li>
+      <li>Membantu perencanaan keuangan jangka panjang</li>
+    </ul>
+    `,
+
+    syarat:`
+    <ul>
+      <li>Usia orang tua: 21 – 55 tahun</li>
+      <li>Usia anak: 0 – 10 tahun saat pendaftaran</li>
+      <li>Melengkapi data keluarga dan kesehatan</li>
+      <li>Pembayaran premi dilakukan secara rutin</li>
+    </ul>
+    `,
+
+    risiko:`
+    <ul>
+      <li>Manfaat tergantung konsistensi pembayaran premi</li>
+      <li>Polis berhenti jika premi tidak dibayar</li>
+      <li>Ada masa tunggu pada manfaat tertentu</li>
+    </ul>
+    `,
+
+    biaya:`
+    <ul>
+      <li>Mulai dari Rp200.000 / bulan</li>
+      <li>Disesuaikan dengan target dana pendidikan</li>
+    </ul>
+    `,
+
+    klaim:`
+    <ul>
+      <li>Pencairan otomatis sesuai jadwal pendidikan</li>
+      <li>Dapat diajukan jika terjadi risiko pada orang tua</li>
+      <li>Proses mudah dan transparan</li>
+    </ul>
+    `
+  }
+};
+
+const p = data[id];
+
+document.getElementById('name').innerText = p.name;
+document.getElementById('desc').innerText = p.desc;
+
+document.getElementById('img').src =
+  images[id] || "assets/images/products/default.jpg";
+
+document.getElementById('kenali').innerHTML = p.kenali;
+document.getElementById('manfaat').innerHTML = p.manfaat;
+document.getElementById('syarat').innerHTML = p.syarat;
+document.getElementById('risiko').innerHTML = p.risiko;
+document.getElementById('biaya').innerHTML = p.biaya;
+document.getElementById('klaim').innerHTML = p.klaim;
+
+
+function openTab(e,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function hitung(){
+  const age = document.getElementById('age').value;
+  const plan = document.getElementById('plan').value;
+
+  let premi = 100000 * plan * (1 + age/100);
+  document.getElementById('hasil').innerText =
+    "Rp " + Math.round(premi).toLocaleString();
+}
+
+function lanjut(){
+  const productId = new URLSearchParams(window.location.search).get('id');
+  const selectedPlan = document.getElementById('plan').options[document.getElementById('plan').selectedIndex].text;
+  const selectedAge = document.getElementById('age').value;
+
+  localStorage.setItem('product_id', productId);
+  
+  window.location.href = `apply.html?id=${productId}&package=${selectedPlan}&age=${selectedAge}`;
+}
+
+function scrollSimulasi(){
+  document.getElementById('simulasi').scrollIntoView({behavior:'smooth'});
+}
+
+</script>
+<script src="script.js"></script>
+
+</body>
+</html>

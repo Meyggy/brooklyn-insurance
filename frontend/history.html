@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Riwayat Polis</title>
+
+<style>
+body{
+  background:#eef2f3;
+  font-family:Arial;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.logo{ width:120px; }
+
+.container{
+  padding:50px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
+  gap:25px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+}
+
+.policy-id{
+  font-size:13px;
+  color:#888;
+}
+
+.badge{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  color:white;
+}
+
+.active{ background:#2e7d32; }
+.pending{ background:#f9a825; }
+.rejected{ background:#c62828; }
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  color:#1b5e20;
+  margin-bottom:10px;
+}
+
+.info{
+  font-size:14px;
+  color:#555;
+  margin-bottom:5px;
+}
+
+.actions{
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+}
+
+.actions button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.detail-btn{
+  background:#eee;
+}
+
+.claim-btn{
+  background:#2e7d32;
+  color:white;
+}
+
+.empty{
+  text-align:center;
+  margin-top:100px;
+  color:#777;
+}
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  width:120px;
+}
+
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
+  transition:0.2s;
+}
+
+.nav-links a:hover{
+  color:#2e7d32;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  position:relative;
+}
+
+.user-avatar{
+  width:35px;
+  height:35px;
+  background:#2e7d32;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.dropdown{
+  position:absolute;
+  top:60px;
+  right:0;
+  background:white;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  display:none;
+
+  flex-direction:column;
+  padding:10px 0;
+  min-width:160px;
+}
+
+.dropdown a{
+  display:block;    
+  padding:12px 20px;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.dropdown a:hover{
+  background:#f5f5f5;
+}
+</style>
+
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div id="navMenu" class="nav-links"></div>
+  </div>
+
+  <div id="navRight" class="nav-right"></div>
+</header>
+
+<div class="container">
+  <h2>Riwayat Polis Anda</h2>
+  <div id="data" class="grid"></div>
+</div>
+
+<script>
+
+const user_id = localStorage.getItem('user_id');
+
+if(!user_id){
+  alert("Login dulu!");
+  window.location.href = "index.html";
+}
+
+
+async function load(){
+  try {
+
+    const user_id = localStorage.getItem('user_id');
+
+    const resPolicy = await fetch('http://localhost:3000/policies/user',{
+      headers:{ user_id }
+    });
+
+    const policies = await resPolicy.json();
+    console.log("POLICIES:", policies);
+
+    const resClaim = await fetch('http://localhost:3000/claims',{
+      headers:{ user_id }
+    });
+
+    const claims = await resClaim.json();
+    console.log("CLAIMS:", claims);
+
+    let html = "";
+
+    if(!policies || policies.length === 0){
+      html = `<div class="empty">Anda belum memiliki polis</div>`;
+      document.getElementById('data').innerHTML = html;
+      return;
+    }
+
+    policies.forEach(p => {
+
+      const claim = claims.find(c => c.policy_id == p.id);
+
+      const status = (claim ? claim.status : p.status) || "pending";
+      const badgeClass = status.toLowerCase();
+
+      html += `
+        <div class="card">
+          <div class="card-top">
+            <div class="policy-id">POL-${p.id}</div>
+            <div class="badge ${badgeClass}">
+              ${status}
+            </div>
+          </div>
+
+          <div class="title">
+            Asuransi Produk #${p.product_id}
+          </div>
+
+          <div class="info">
+            Premi: Rp ${p.premium || '-'}
+          </div>
+
+          <div class="info">
+            Tanggal: ${p.created_at || '-'}
+          </div>
+
+          <div class="actions">
+
+
+            ${
+              !claim ? `
+                <button class="claim-btn" onclick="goClaim(${p.id})">
+                  Klaim
+                </button>
+              `
+              :
+              `
+                <button class="claim-btn" onclick="goClaimDetail(${claim.id})">
+                  Lihat Klaim
+                </button>
+              `
+            }
+
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById('data').innerHTML = html;
+
+  } catch(err){
+    console.error(err);
+    alert("Gagal ambil data");
+  }
+}
+
+function goClaim(id){
+  localStorage.setItem('policy_id', id);
+  window.location.href = "claim.html";
+}
+
+function goDetail(id){
+  alert("Halaman detail belum dibuat");
+}
+
+function goClaimDetail(id){
+  localStorage.setItem('claim_id', id);
+  window.location.href = "claim-detail.html";
+}
+
+
+
+load();
+
+</script>
+<script src="script.js"></script>
+</body>
+</html>

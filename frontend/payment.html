@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pembayaran Aman | Brooklyn Insurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2e7d32; --bg: #f0f2f5; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); text-align: center; }
+        .summary-box { background: #f8fcf9; padding: 20px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e0e0e0; text-align: left; }
+        .info { display: flex; justify-content: space-between; margin: 10px 0; font-size: 14px; color: #666; }
+        .info b { color: #333; }
+        .price-tag { font-size: 32px; font-weight: 700; color: var(--primary); margin: 20px 0; display: block; }
+        select, button { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; }
+        button { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #1b5e20; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Pembayaran</h2>
+
+    <div class="summary-box">
+        <div class="info">Nama: <b id="res-name">-</b></div>
+        <div class="info">ID Produk: <b id="res-product">-</b></div>
+        <div class="info">Paket: <b id="res-package">-</b></div>
+        <div class="info">Umur: <b id="res-age">-</b></div>
+        <div class="info">Metode: <b id="display-method">Transfer Bank</b></div>
+    </div>
+
+    <span class="price-tag" id="res-total">Rp 0</span>
+
+    <label style="display:block; text-align:left; font-size:12px; color:#888; margin-bottom:5px;">METODE PEMBAYARAN</label>
+    <select id="method" onchange="document.getElementById('display-method').innerText = this.value">
+        <option value="Transfer Bank">Transfer Bank</option>
+        <option value="E-Wallet">E-Wallet</option>
+        <option value="Kartu Kredit">Kartu Kredit</option>
+    </select>
+
+    <button id="btn-pay" onclick="bayarSekarang()">Bayar Sekarang</button>
+</div>
+
+<script>
+    const BASE_PRICES = { "1": 100000, "2": 150000, "3": 200000 };
+    const MULTIPLIERS = { "Basic": 1, "Standard": 1.5, "Premium": 2 };
+
+    const savedData = localStorage.getItem('form_submission');
+    const data = savedData ? JSON.parse(savedData) : null;
+
+    const userId = localStorage.getItem('user_id'); 
+
+    if (!data) {
+        alert("Data formulir tidak ditemukan!");
+        window.location.href = "products.html";
+    } else if (!userId) {
+        alert("Sesi login hilang. Silakan login kembali.");
+        window.location.href = "login.html"; // Arahkan ke login jika user_id tidak ada
+    } else {
+        renderPayment();
+    }
+
+    function renderPayment() {
+        const base = BASE_PRICES[data.product_id] || 0;
+        const mult = MULTIPLIERS[data.package_type] || 1;
+        let total = base * mult;
+
+        if (data.age > 20) {
+            total += (data.age - 20) * 0.02 * total;
+        }
+
+        const hargaFinal = Math.round(total);
+
+        document.getElementById('res-name').innerText = data.name;
+        document.getElementById('res-product').innerText = data.product_id;
+        document.getElementById('res-package').innerText = data.package_type;
+        document.getElementById('res-age').innerText = data.age + " Tahun";
+        document.getElementById('res-total').innerText = "Rp " + hargaFinal.toLocaleString('id-ID');
+        
+        data.harga_final = hargaFinal;
+    }
+
+async function bayarSekarang() {
+
+  const user_id = localStorage.getItem('user_id');
+
+  if(!user_id){
+    alert("Harus login!");
+    window.location.href = "login.html";
+    return;
+  }
+
+  if(!data){
+    alert("Data tidak ditemukan!");
+    return;
+  }
+
+  const product_id = data.product_id;
+  const premium = data.harga_final;
+
+  try {
+    const res = await fetch('http://localhost:3000/policies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'user_id': user_id
+      },
+      body: JSON.stringify({
+        product_id,
+        premium
+      })
+    });
+
+    const result = await res.json();
+
+    console.log("RESPONSE:", result);
+
+    if(result.success){
+      alert("Pembayaran berhasil!");
+      window.location.href = "history.html";
+    } else {
+      alert(result.message || "Gagal bayar");
+    }
+
+  } catch(err){
+    console.error(err);
+    alert("Server error");
+  }
+}
+</script>
+</body>
+</html>

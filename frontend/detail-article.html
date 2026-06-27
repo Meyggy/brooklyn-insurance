@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Artikel</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  font-family:'Poppins',sans-serif;
+  margin:0;
+  background:#f4f7f6;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  width:120px;
+}
+
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
+}
+
+.nav-links a:hover{
+  color:#2e7d32;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+}
+
+.article-hero{
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:white;
+  text-align:center;
+  padding:60px 20px;
+}
+
+.article-hero h1{
+  margin-bottom:10px;
+}
+
+.back-btn{
+  max-width:900px;
+  margin:20px auto;
+  cursor:pointer;
+  color:#2e7d32;
+  font-weight:500;
+}
+
+.article-container{
+  max-width:900px;
+  margin:-40px auto 40px;
+  padding:40px;
+  background:white;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.article-container img{
+  width:100%;
+  border-radius:15px;
+  margin-bottom:25px;
+}
+
+.article-container h1{
+  color:#1b5e20;
+}
+
+.article-container h2{
+  color:#2e7d32;
+  margin-top:25px;
+}
+
+.article-container p{
+  color:#555;
+  line-height:1.8;
+}
+
+.highlight{
+  background:#e8f5e9;
+  padding:15px;
+  border-radius:10px;
+  margin:20px 0;
+}
+
+.cta{
+  margin-top:40px;
+  padding:30px;
+  background:linear-gradient(135deg,#1b5e20,#43a047);
+  color:white;
+  border-radius:20px;
+  text-align:center;
+}
+
+.cta button{
+  margin-top:15px;
+  padding:12px 25px;
+  border:none;
+  border-radius:10px;
+  background:white;
+  color:#2e7d32;
+  font-weight:600;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div class="nav-links">
+      <a href="index.html">Beranda</a>
+      <a href="products.html">Produk</a>
+      <a href="article.html">Artikel</a>
+      <a href="about.html">Tentang Kami</a>
+      <a href="services.html">Layanan</a>
+      <a href="contact.html">Hubungi</a>
+    </div>
+  </div>
+
+  <div class="nav-right"></div>
+</header>
+
+<div class="article-hero">
+  <h1 id="heroTitle"></h1>
+  <p>Insight & edukasi untuk melindungi masa depan Anda</p>
+</div>
+
+<div class="article-container" id="articleContent"></div>
+
+<script>
+
+const id = localStorage.getItem('article_id');
+
+let content = "";
+
+document.getElementById('heroTitle').innerText =
+  id == 1 ? "Pentingnya Asuransi"
+  : id == 2 ? "Tips Memilih Asuransi"
+  : "Manfaat Asuransi Kesehatan";
+
+if(id == 1){
+  content = `
+    <h1>Pentingnya Asuransi di Kehidupan Modern</h1>
+    <img src="assets/images/products/artikel1.jpg">
+
+    <p>Di era modern, risiko kehidupan semakin kompleks. Biaya kesehatan, kecelakaan, hingga ketidakpastian finansial dapat terjadi kapan saja.</p>
+
+    <h2>Apa Itu Asuransi?</h2>
+    <p>Asuransi adalah perlindungan finansial untuk mengurangi dampak kerugian akibat risiko tak terduga.</p>
+
+    <div class="highlight">
+      Contoh: biaya rumah sakit Rp50 juta bisa ditanggung asuransi.
+    </div>
+
+    <h2>Manfaat</h2>
+    <p>✔ Mengurangi beban biaya besar</p>
+    <p>✔ Memberikan rasa aman</p>
+    <p>✔ Melindungi keluarga</p>
+
+    <div class="cta">
+      <h3>Mulai Lindungi Diri Anda Sekarang</h3>
+      <button onclick="goProduk()">Lihat Produk</button>
+    </div>
+  `;
+}
+
+else if(id == 2){
+  content = `
+    <h1>Tips Memilih Asuransi yang Tepat</h1>
+    <img src="assets/images/products/artikel2.jpg">
+
+    <p>Memilih asuransi harus sesuai kebutuhan dan kemampuan finansial.</p>
+
+    <h2>Tips</h2>
+    <p>✔ Kenali kebutuhan</p>
+    <p>✔ Sesuaikan budget</p>
+    <p>✔ Cek manfaat</p>
+
+    <div class="highlight">
+      Jangan hanya lihat premi murah, tapi manfaatnya.
+    </div>
+
+    <div class="cta">
+      <h3>Temukan Asuransi Terbaik</h3>
+      <button onclick="goProduk()">Bandingkan Produk</button>
+    </div>
+  `;
+}
+
+else{
+  content = `
+    <h1>Manfaat Asuransi Kesehatan</h1>
+    <img src="assets/images/products/artikel3.jpg">
+
+    <p>Biaya kesehatan terus meningkat setiap tahun.</p>
+
+    <div class="highlight">
+      Rawat inap bisa mencapai puluhan juta rupiah.
+    </div>
+
+    <h2>Keuntungan</h2>
+    <p>✔ Akses RS luas</p>
+    <p>✔ Beban biaya ringan</p>
+    <p>✔ Tenang secara finansial</p>
+
+    <div class="cta">
+      <h3>Amankan Kesehatan Anda</h3>
+      <button onclick="goProduk()">Lihat Paket</button>
+    </div>
+  `;
+}
+
+document.getElementById('articleContent').innerHTML = content;
+
+function goProduk(){
+  window.location.href = "products.html";
+}
+
+</script>
+
+</body>
+</html>

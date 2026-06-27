@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajukan Klaim</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  margin:0;
+  background:#f4f7f6;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.hero{
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:white;
+  text-align:center;
+  padding:70px 20px;
+}
+
+.container{
+  max-width:700px;
+  margin:-50px auto 40px;
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+}
+
+.steps{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:30px;
+}
+
+.circle{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#2e7d32;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto;
+}
+
+.info{
+  background:#e8f5e9;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
+  font-size:14px;
+}
+
+.select-box{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  margin-top:10px;
+}
+
+textarea{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-top:10px;
+  height:120px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:20px;
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  transform:translateY(-2px);
+}
+
+.success{
+  margin-top:15px;
+  color:#2e7d32;
+  text-align:center;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div><b>Brooklyn Insurance</b></div>
+</header>
+
+<div class="hero">
+  <h1>Ajukan Klaim</h1>
+  <p>Proses cepat & transparan</p>
+</div>
+
+<div class="container">
+
+  <div class="steps">
+    <div><div class="circle">1</div><small>Isi</small></div>
+    <div><div class="circle">2</div><small>Verifikasi</small></div>
+    <div><div class="circle">3</div><small>Cair</small></div>
+  </div>
+
+  <div class="info">
+    💡 Klaim diproses dalam 1x24 jam
+  </div>
+
+  <label>Pilih Polis</label>
+  <select id="policy_id" class="select-box">
+    <option value="">-- Loading... --</option>
+  </select>
+
+  <label>Deskripsi</label>
+  <textarea id="desc" placeholder="Jelaskan kejadian..."></textarea>
+
+  <button onclick="submitClaim()">Kirim Klaim</button>
+
+  <div id="msg" class="success"></div>
+
+</div>
+
+<script>
+
+if(!localStorage.getItem('user_id')){
+  alert("Login dulu");
+  window.location.href = "index.html";
+}
+
+
+async function loadPolicyOptions(){
+  try{
+    const res = await fetch('http://localhost:3000/policies/user',{
+      headers:{
+        'user_id': localStorage.getItem('user_id')
+      }
+    });
+
+    const data = await res.json();
+
+    const select = document.getElementById('policy_id');
+
+    let html = '<option value="">-- Pilih Polis Aktif --</option>';
+
+    const savedPolicy = localStorage.getItem('policy_id');
+
+    data.forEach(p=>{
+      html += `
+        <option value="${p.id}" ${savedPolicy == p.id ? 'selected' : ''}>
+          🛡️ Polis #${p.id} | ${p.status}
+        </option>
+      `;
+    });
+    select.innerHTML = html;
+
+  }catch(err){
+    console.log(err);
+    alert("Gagal load polis");
+  }
+}
+
+
+async function submitClaim(){
+  const policy_id = document.getElementById('policy_id').value;
+  const description = document.getElementById('desc').value;
+
+  if(!policy_id || !description){
+    alert("Lengkapi data!");
+    return;
+  }
+
+  try{
+    const res = await fetch('http://localhost:3000/claims',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'user_id': localStorage.getItem('user_id')
+      },
+      body: JSON.stringify({policy_id, description})
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      localStorage.setItem('claim_id', data.claim_id);
+
+      window.location.href = "claim-detail.html";
+    }else{
+      alert("Gagal kirim klaim");
+    }
+
+  }catch(err){
+    console.log(err);
+    alert("Server error");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadPolicyOptions);
+
+</script>
+
+</body>
+</html>

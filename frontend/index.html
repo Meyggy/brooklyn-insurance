@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brooklyn Insurance</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div id="navMenu" class="nav-links"></div>
+  </div>
+
+  <div id="navRight" class="nav-right"></div>
+</header>
+<div class="container">
+
+  <div class="left">
+    <h1>Perlindungan kesehatan dan jiwa untuk masa depan yang lebih baik</h1>
+    <p>Brooklyn Insurance hadir memberikan perlindungan terbaik bagi Anda dan keluarga tercinta.</p>
+
+    <button onclick="window.location.href='about.html'">
+      Pelajari Lebih Lanjut
+    </button>
+  </div>
+
+  <div class="right" id="loginBox">
+
+    <h2>Selamat datang!!</h2>
+    <p>Silakan masuk untuk melanjutkan</p>
+
+    <div class="input-box">
+      <input type="text" id="email" placeholder="Email atau nomor ponsel">
+    </div>
+
+    <div class="input-box">
+      <input type="password" id="password" placeholder="Kata sandi">
+    </div>
+
+    <button class="login-btn" onclick="login()">Masuk</button>
+
+    <p class="register-text">
+      Belum punya akun? <a href="register.html">Daftar Sekarang</a>
+    </p>
+
+  </div>
+
+</div>
+
+<div class="features">
+
+  <div class="feature">
+    <img src="assets/images/products/pelindungan.jpeg" class="icon">
+    <h4>Perlindungan Terpercaya</h4>
+    <p>Keamanan terbaik untuk Anda dan keluarga</p>
+  </div>
+
+  <div class="feature">
+    <img src="assets/images/products/kesehatanjiwa.jpeg" class="icon">
+    <h4>Kesehatan & Jiwa</h4>
+    <p>Solusi lengkap asuransi modern</p>
+  </div>
+
+  <div class="feature">
+    <img src="assets/images/products/layanan.jpg" class="icon">
+    <h4>Layanan Cepat</h4>
+    <p>Proses mudah dan responsif</p>
+  </div>
+
+  <div class="feature">
+    <img src="assets/images/products/masadepan.jpeg" class="icon">
+    <h4>Masa Depan Aman</h4>
+    <p>Rencana hidup lebih terjamin</p>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+loadNavbar();
+checkLoginUI();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Hubungi Kami - Brooklyn Insurance</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  margin:0;
+  background:#f4f7f6;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 50px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.logo{
+  width:120px;
+}
+
+.nav-links a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#333;
+  font-weight:500;
+}
+
+.nav-links a:hover{
+  color:#2e7d32;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  position:relative;
+}
+
+.user-avatar{
+  width:35px;
+  height:35px;
+  background:#2e7d32;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.dropdown{
+  position:absolute;
+  top:60px;
+  right:0;
+  background:white;
+  border-radius:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  display:none;
+  flex-direction:column;
+  padding:10px 0;
+  min-width:160px;
+}
+
+.dropdown a{
+  display:block;
+  padding:12px 20px;
+  text-decoration:none;
+  color:#333;
+}
+
+.dropdown a:hover{
+  background:#f5f5f5;
+}
+
+.contact-wrapper{
+  display:flex;
+  gap:40px;
+  padding:60px;
+  align-items:flex-start;
+}
+
+.contact-form{
+  flex:1;
+  background:white;
+  padding:35px;
+  border-radius:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+  transition:0.3s;
+}
+
+.contact-form:hover{
+  transform:translateY(-5px);
+}
+
+.contact-form input,
+.contact-form textarea{
+  width:100%;
+  padding:14px;
+  margin:12px 0;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:14px;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+  border-color:#2e7d32;
+  box-shadow:0 0 0 3px rgba(46,125,50,0.1);
+  outline:none;
+}
+
+.contact-form button{
+  width:100%;
+  padding:15px;
+  background:linear-gradient(90deg,#2e7d32,#66bb6a);
+  border:none;
+  border-radius:12px;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.contact-form button:hover{
+  transform:scale(1.03);
+  box-shadow:0 10px 25px rgba(46,125,50,0.3);
+}
+
+.contact-info{
+  flex:1;
+}
+
+.info-card{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:15px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+  transition:0.3s;
+}
+
+.info-card:hover{
+  transform:translateY(-3px);
+}
+
+.info-card h3{
+  color:#2e7d32;
+  margin-bottom:5px;
+}
+
+@media(max-width:900px){
+  .contact-wrapper{
+    flex-direction:column;
+    padding:30px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <img src="assets/images/logo.png" class="logo">
+    <div class="nav-links">
+      <a href="index.html">Beranda</a>
+      <a href="products.html">Produk</a>
+      <a href="contact.html">Hubungi</a>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <div class="user-box" onclick="toggleDropdown()">
+      <span id="username">User</span>
+      <div class="user-avatar" id="avatar">U</div>
+
+      <div class="dropdown" id="dropdown">
+        <a href="profile.html">Profil</a>
+        <a href="history.html">Riwayat</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="contact-wrapper">
+
+  <div class="contact-form">
+    <h2>Hubungi Kami</h2>
+    <p style="color:#666; font-size:14px;">
+      Punya pertanyaan? Tim kami siap membantu Anda.
+    </p>
+
+    <input id="name" placeholder="Nama Lengkap">
+    <input id="email" placeholder="Email">
+    <textarea id="message" placeholder="Tulis pesan Anda..."></textarea>
+
+    <button onclick="sendMessage()">Kirim Pesan</button>
+  </div>
+
+  <div class="contact-info">
+
+    <div class="info-card">
+      <h3>📍 Alamat</h3>
+      <p>Jl. Mikroskil No. 123, Medan</p>
+    </div>
+
+    <div class="info-card">
+      <h3>📞 Telepon</h3>
+      <p>+62 812 3456 7890</p>
+    </div>
+
+    <div class="info-card">
+      <h3>📧 Email</h3>
+      <p>support@brooklyninsurance.com</p>
+    </div>
+
+    <div class="info-card">
+      <h3>🕒 Jam Operasional</h3>
+      <p>Senin - Jumat: 08.00 - 17.00</p>
+      <p>Sabtu: 09.00 - 14.00</p>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function toggleDropdown(){
+  const d = document.getElementById('dropdown');
+  d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+async function sendMessage(){
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const message = document.getElementById('message').value;
+
+  if(!name || !email || !message){
+    alert("Lengkapi semua field");
+    return;
+  }
+
+  const res = await fetch('http://localhost:3000/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name, email, message })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    alert("Pesan berhasil dikirim!");
+  } else {
+    alert("Gagal kirim pesan");
+  }
+}
+
+const username = localStorage.getItem('user_name');
+if(username){
+  document.getElementById('username').innerText = username;
+  document.getElementById('avatar').innerText = username.charAt(0).toUpperCase();
+}
+</script>
+
+</body>
+</html>
