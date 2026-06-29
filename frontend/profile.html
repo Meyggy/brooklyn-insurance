@@ -187,96 +187,76 @@ nav a{
 
 </div>
 
-<script src="script.js"></script>
+<script src="assets/js/script.js"></script>
 
 <script>
-
-if(!localStorage.getItem('user_id')){
-  window.location.href = "index.html";
+// 1. Proteksi Halaman: Cek apakah user sudah login
+const token = localStorage.getItem('token');
+if (!token) {
+    alert("Silakan login terlebih dahulu");
+    window.location.href = "index.html";
 }
 
-loadNavbar();
+// 2. Load Data Profile
+async function loadProfile() {
+    try {
+        const res = await fetch('http://localhost:3000/users/profile', {
+            headers: {
+                'Authorization': `Bearer ${token}` // Keamanan JWT
+            }
+        });
 
-async function loadProfile(){
-  try{
-    const res = await fetch('http://localhost:3000/users/profile',{
-      headers:{
-        'user_id': localStorage.getItem('user_id')
-      }
-    });
+        if (!res.ok) throw new Error("Gagal memuat profil");
+        const data = await res.json();
 
-    const data = await res.json();
+        // Update UI
+        document.getElementById('name').innerText = data.name;
+        document.getElementById('email').innerText = data.email;
+        document.getElementById('role').innerText = data.role;
+        document.getElementById('avatar').innerText = data.name.charAt(0).toUpperCase();
 
-    if(!data || !data.name){
-      console.log("Profile error:", data);
-      return;
+    } catch (err) {
+        console.error("Profile error:", err);
+        alert("Sesi berakhir, silakan login kembali.");
+        logout();
     }
-
-    document.getElementById('name').innerText = data.name;
-    document.getElementById('email').innerText = data.email;
-    document.getElementById('role').innerText = data.role;
-
-    document.getElementById('avatar').innerText =
-      data.name.charAt(0).toUpperCase();
-
-  }catch(err){
-    console.log("ERROR PROFILE:", err);
-  }
 }
 
-async function loadStats(){
-  try{
+// 3. Load Stats (Policies & Claims)
+async function loadStats() {
+    try {
+        // Fetch Polis
+        const resPol = await fetch('http://localhost:3000/policies/user', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const pol = await resPol.json();
+        document.getElementById('totalPolis').innerText = Array.isArray(pol) ? pol.length : 0;
 
-    const resPol = await fetch('http://localhost:3000/policies/user',{
-      headers:{
-        'user_id': localStorage.getItem('user_id')
-      }
-    });
+        // Fetch Klaim
+        const resCl = await fetch('http://localhost:3000/claims', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const cl = await resCl.json();
+        document.getElementById('totalClaim').innerText = Array.isArray(cl) ? cl.length : 0;
 
-    const pol = await resPol.json();
-
-    if(Array.isArray(pol)){
-      document.getElementById('totalPolis').innerText = pol.length;
-    } else {
-      console.log("POLICY ERROR:", pol);
-      document.getElementById('totalPolis').innerText = 0;
+    } catch (err) {
+        console.error("Stats error:", err);
     }
-
-
-    const resCl = await fetch('http://localhost:3000/claims',{
-      headers:{
-        'user_id': localStorage.getItem('user_id')
-      }
-    });
-
-    const cl = await resCl.json();
-
-    if(Array.isArray(cl)){
-      document.getElementById('totalClaim').innerText = cl.length;
-    } else {
-      console.log("CLAIM ERROR:", cl);
-      document.getElementById('totalClaim').innerText = 0;
-    }
-
-  }catch(err){
-    console.log("ERROR STATS:", err);
-  }
 }
 
-function go(page){
-  window.location.href = page;
-}
-
-function logout(){
-  localStorage.clear();
-  window.location.href = "index.html";
+// 4. Utility Functions
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadProfile();
-  loadStats();
+    // Fungsi loadNavbar() akan ada di script.js pusat nanti
+    if (typeof loadNavbar === 'function') loadNavbar(); 
+    
+    loadProfile();
+    loadStats();
 });
-
 </script>
 </body>
 </html>

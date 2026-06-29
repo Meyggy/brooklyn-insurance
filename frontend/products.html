@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Produk Asuransi</title>
-
+<link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -196,6 +196,47 @@ button:hover{
 .dropdown a:hover{
   background:#f5f5f5;
 }
+
+.best-seller-badge {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    background: #ff9800;
+    color: white;
+    padding: 6px 15px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 0 5px 5px 0;
+}
+
+.card .price {
+    color: #2e7d32;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 15px 0;
+}
+
+.card p {
+    font-size: 14px;
+    color: #666;
+    height: 45px; /* Menjaga tinggi deskripsi agar card sejajar */
+    overflow: hidden;
+}
+
+/* Tombol dengan transisi lembut */
+button {
+    background: #2e7d32;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+button:hover {
+    background: white;
+    color: #2e7d32;
+    border: 2px solid #2e7d32;
+}
 </style>
 </head>
 
@@ -218,89 +259,87 @@ button:hover{
 <div class="grid" id="products"></div>
 
 <script>
-
-if(!localStorage.getItem('user_id')){
-  alert("Silakan login terlebih dahulu");
-  window.location.href = "index.html";
+// 1. Cek Login (Gunakan Token JWT)
+const token = localStorage.getItem('token');
+if (!token) {
+    alert("Silakan login terlebih dahulu");
+    window.location.href = "index.html";
 }
 
 const images = {
-  1: "assets/images/products/kesehatan.jpg",
-  2: "assets/images/products/jiwa.jpg",
-  3: "assets/images/products/pendidikan.jpg"
+    1: "assets/images/products/kesehatan.jpg",
+    2: "assets/images/products/jiwa.jpg",
+    3: "assets/images/products/pendidikan.jpg"
 };
 
 const shortDesc = {
-  1: "Perlindungan medis lengkap dengan cashless & klaim cepat di 500+ RS",
-  2: "Jaminan finansial keluarga dengan santunan hingga ratusan juta rupiah",
-  3: "Dana pendidikan anak terencana hingga kuliah"
+    1: "Perlindungan medis lengkap dengan cashless & klaim cepat di 500+ RS",
+    2: "Jaminan finansial keluarga dengan santunan hingga ratusan juta rupiah",
+    3: "Dana pendidikan anak terencana hingga kuliah"
 };
 
-async function loadProducts(){
-  try{
-    const res = await fetch('http://localhost:3000/products');
-    const data = await res.json();
+async function loadProducts() {
+    const container = document.getElementById('products');
+    
+    // Tampilkan pesan loading agar user tahu aplikasi sedang bekerja
+    container.innerHTML = `<p style="text-align:center; width:100%;">Memuat produk terbaik untuk Anda...</p>`;
 
-    let html = "";
+    try {
+        const res = await fetch('http://localhost:3000/products', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-    data.forEach(p=>{
+        if (!res.ok) throw new Error("Gagal mengambil data produk");
 
-      const desc = p.description && p.description.length > 20 
-        ? p.description 
-        : shortDesc[p.id];
+        const data = await res.json();
+        let html = "";
 
-      html += `
-        <div class="card">
+        data.forEach(p => {
+            const desc = p.description && p.description.length > 20 
+                ? p.description 
+                : (shortDesc[p.id] || "Deskripsi produk tidak tersedia.");
 
-          <!-- 🔥 BADGE -->
-          <div style="
-            position:absolute;
-            background:#ff9800;
-            color:white;
-            padding:5px 10px;
-            font-size:12px;
-            border-radius:0 0 10px 0;
-          ">
-            Best Seller
-          </div>
+            // Tambahkan style="position: relative;" pada card
+            html += `
+                <div class="card" style="position: relative;">
+                    <div style="position:absolute; top:0; left:0; background:#ff9800; color:white; padding:5px 12px; font-size:11px; font-weight:bold; border-radius: 0 0 10px 0; z-index:10;">
+                        Best Seller
+                    </div>
 
-          <img src="${images[p.id] || 'assets/images/products/default.jpg'}">
-          
-          <div class="card-content">
-            <h4>${p.name}</h4>
-            <p>${desc}</p>
+                    <img src="${images[p.id] || 'assets/images/products/default.jpg'}" alt="${p.name}">
+                    
+                    <div class="card-content">
+                        <h4>${p.name}</h4>
+                        <p>${desc}</p>
+                        <div class="price">
+                            Mulai Rp ${Number(p.price).toLocaleString('id-ID')} / bulan
+                        </div>
+                        <button onclick="goDetail(${p.id})">Lihat Selengkapnya</button>
+                    </div>
+                </div>
+            `;
+        });
 
-            <div class="price">
-              Mulai Rp ${Number(p.price).toLocaleString()} / bulan
-            </div>
-
-            <button onclick="goDetail(${p.id})">
-              Lihat Selengkapnya
-            </button>
-          </div>
-        </div>
-      `;
-    });
-
-    document.getElementById('products').innerHTML = html;
-
-  }catch(err){
-    console.error(err);
-    alert("Gagal load produk");
-  }
+        container.innerHTML = html;
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p style="text-align:center; color:red;">Gagal memuat produk. Coba refresh halaman.</p>`;
+    }
+}
+// 2. Fungsi Tunggal (Sudah digabungkan & rapi)
+function goDetail(id) {
+    localStorage.setItem('product_id', id);
+    window.location.href = "product-detail.html?id=" + id;
 }
 
-function goDetail(id){
-  window.location.href = "product-detail.html?id=" + id;
-}
-
-loadProducts();
-function goDetail(id){
-  localStorage.setItem('product_id', id); // 🔥 TAMBAH INI
-  window.location.href = "product-detail.html?id=" + id;
-}
+// Jalankan saat load
+document.addEventListener("DOMContentLoaded", loadProducts);
 </script>
-<script src="script.js"></script>
-
+<script src="assets/js/script.js"></script>
+<a href="chat.html" class="chat-fab">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</a>
 </body>
 </html>

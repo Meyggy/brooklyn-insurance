@@ -1,10 +1,11 @@
 const mysql = require('mysql2/promise');
+require('dotenv').config(); // Pastikan Anda menginstall 'dotenv'
 
 const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'brooklyn_insurance',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'brooklyn_insurance',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

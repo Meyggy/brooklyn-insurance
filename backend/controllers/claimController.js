@@ -1,71 +1,57 @@
 const db = require('../config/db');
 
-const createClaim = (req, res) => {
+// Gunakan req.user.id yang sudah diset oleh middleware auth
+const createClaim = async (req, res) => {
   const { policy_id, description } = req.body;
+  const user_id = req.user.id; 
 
-  if (!policy_id || !description) {
-    return res.status(400).json({ message: 'Data tidak lengkap' });
+  try {
+    await db.query("INSERT INTO claims (user_id, policy_id, description, status) VALUES (?, ?, ?, 'pending')", 
+      [user_id, policy_id, description]);
+    res.json({ success: true, message: 'Claim berhasil dibuat' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-
-  db.query(
-    'INSERT INTO claims (policy_id, description, status) VALUES (?, ?, ?)',
-    [policy_id, description, 'pending'],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: 'Claim berhasil dibuat' });
-    }
-  );
 };
 
-const getClaims = (req, res) => {
-  const user_id = req.headers['user_id'];
-
-  db.query(
-    `
-    SELECT c.*
-    FROM claims c
-    JOIN policies p ON c.policy_id = p.id
-    WHERE p.user_id = ?
-    `,
-    [user_id],
-    (err, results) => {
-      if (err) return res.status(500).json(err);
-      res.json(results);
+const getClaims = async (req, res) => {
+  try {
+    let query = "SELECT c.* FROM claims c";
+    let params = [];
+    
+    // Jika bukan admin, hanya ambil data miliknya
+    if (req.role !== 'admin') {
+      query += " JOIN policies p ON c.policy_id = p.id WHERE p.user_id = ?";
+      params.push(req.user.id);
     }
-  );
+
+    const [results] = await db.query(query, params);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
-const updateClaimStatus = (req, res) => {
+
+// Pastikan fungsi ini ada sesuai route tadi
+const getClaimById = async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM claims WHERE id = ?", [req.params.id]);
+        if(rows.length === 0) return res.status(404).json({message: "Not found"});
+        res.json(rows[0]);
+    } catch(err) {
+        res.status(500).json({success: false});
+    }
+};
+
+const updateClaimStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-
-  db.query(
-    'UPDATE claims SET status=? WHERE id=?',
-    [status, id],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: 'Status berhasil diupdate' });
-    }
-  );
+  try {
+    await db.query("UPDATE claims SET status=? WHERE id=?", [status, id]);
+    res.json({ success: true, message: 'Status berhasil diupdate' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
-const getDashboard = (req, res) => {
-  db.query(
-    `
-    SELECT 
-      (SELECT COUNT(*) FROM users) AS total_users,
-      (SELECT COUNT(*) FROM policies) AS total_policies,
-      (SELECT COUNT(*) FROM claims) AS total_claims
-    `,
-    (err, result) => {
-      if (err) return res.status(500).json(err);
-      res.json(result[0]);
-    }
-  );
-};
-
-module.exports = {
-  createClaim,
-  getClaims,
-  updateClaimStatus,
-  getDashboard
-};
+module.exports = { createClaim, getClaims, getClaimById, updateClaimStatus };

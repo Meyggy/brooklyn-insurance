@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Detail Produk</title>
-
+<link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -275,8 +275,8 @@ body{
 
 <script>
 
-const id = new URLSearchParams(window.location.search).get('id');
-
+const urlParams = new URLSearchParams(window.location.search);
+const id = urlParams.get('id');
 const images = {
   1: "assets/images/products/kesehatan.jpg",
   2: "assets/images/products/jiwa.jpg",
@@ -441,54 +441,71 @@ const data = {
 };
 
 const p = data[id];
-
-document.getElementById('name').innerText = p.name;
-document.getElementById('desc').innerText = p.desc;
-
-document.getElementById('img').src =
-  images[id] || "assets/images/products/default.jpg";
-
-document.getElementById('kenali').innerHTML = p.kenali;
-document.getElementById('manfaat').innerHTML = p.manfaat;
-document.getElementById('syarat').innerHTML = p.syarat;
-document.getElementById('risiko').innerHTML = p.risiko;
-document.getElementById('biaya').innerHTML = p.biaya;
-document.getElementById('klaim').innerHTML = p.klaim;
-
-
-function openTab(e,id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-
-  e.target.classList.add('active');
-  document.getElementById(id).classList.add('active');
+if (p) {
+    document.getElementById('name').innerText = p.name;
+    document.getElementById('desc').innerText = p.desc;
+    document.getElementById('img').src = images[id] || "assets/images/products/default.jpg";
+    document.getElementById('kenali').innerHTML = p.kenali;
+    document.getElementById('manfaat').innerHTML = p.manfaat;
+    document.getElementById('syarat').innerHTML = p.syarat;
+    document.getElementById('risiko').innerHTML = p.risiko;
+    document.getElementById('biaya').innerHTML = p.biaya;
+    document.getElementById('klaim').innerHTML = p.klaim;
 }
 
-function hitung(){
-  const age = document.getElementById('age').value;
-  const plan = document.getElementById('plan').value;
-
-  let premi = 100000 * plan * (1 + age/100);
-  document.getElementById('hasil').innerText =
-    "Rp " + Math.round(premi).toLocaleString();
+// Tab Logic
+function openTab(e, tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
 }
 
-function lanjut(){
-  const productId = new URLSearchParams(window.location.search).get('id');
-  const selectedPlan = document.getElementById('plan').options[document.getElementById('plan').selectedIndex].text;
-  const selectedAge = document.getElementById('age').value;
+// Simulasi Perhitungan
+function hitung() {
+    const age = parseInt(document.getElementById('age').value);
+    const plan = document.getElementById('plan').value;
 
-  localStorage.setItem('product_id', productId);
-  
-  window.location.href = `apply.html?id=${productId}&package=${selectedPlan}&age=${selectedAge}`;
+    if (!age || age < 0) {
+        alert("Masukkan usia yang valid!");
+        return;
+    }
+
+    // Rumus dasar
+    let premi = 100000 * plan * (1 + age / 100);
+    document.getElementById('hasil').innerText = "Rp " + Math.round(premi).toLocaleString('id-ID');
 }
 
-function scrollSimulasi(){
-  document.getElementById('simulasi').scrollIntoView({behavior:'smooth'});
+// Navigasi ke Apply dengan Pengecekan Login
+function lanjut() {
+    const token = localStorage.getItem('token');
+    
+    // Cek Login: Jika belum login, arahkan ke login
+    if (!token) {
+        alert("Anda harus login untuk mengajukan polis.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const productId = id;
+    const selectedPlan = document.getElementById('plan').options[document.getElementById('plan').selectedIndex].text;
+    const selectedAge = document.getElementById('age').value;
+
+    if(!selectedAge) { alert("Pilih usia terlebih dahulu!"); return; }
+
+    localStorage.setItem('product_id', productId);
+    window.location.href = `apply.html?id=${productId}&package=${selectedPlan}&age=${selectedAge}`;
 }
 
+function scrollSimulasi() {
+    document.getElementById('simulasi').scrollIntoView({ behavior: 'smooth' });
+}
 </script>
-<script src="script.js"></script>
-
+<script src="assets/js/script.js"></script>
+<a href="chat.html" class="chat-fab">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</a>
 </body>
 </html>

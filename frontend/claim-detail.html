@@ -79,38 +79,43 @@ button{
 </div>
 
 <script>
+async function loadClaim() {
+    const claim_id = localStorage.getItem('claim_id');
+    const token = localStorage.getItem('token'); // Gunakan token JWT
+    const statusEl = document.getElementById('status');
 
-async function loadClaim(){
-  const claim_id = localStorage.getItem('claim_id');
+    // Mapping status untuk clean code
+    const statusConfig = {
+        'pending': { text: "⏳ Menunggu Verifikasi", class: "pending" },
+        'approved': { text: "✅ Klaim Disetujui", class: "approved" },
+        'rejected': { text: "❌ Klaim Ditolak", class: "rejected" }
+    };
 
-  const res = await fetch('http://localhost:3000/claims/'+claim_id,{
-    headers:{
-      'user_id': localStorage.getItem('user_id')
+    try {
+        const res = await fetch(`http://localhost:3000/claims/${claim_id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}` // Middleware auth akan mengecek ini
+            }
+        });
+
+        if (!res.ok) throw new Error("Gagal mengambil data");
+        const data = await res.json();
+
+        // Update DOM
+        document.getElementById('id').innerText = data.id;
+        document.getElementById('policy').innerText = data.policy_id;
+        document.getElementById('statusText').innerText = data.status;
+
+        // Terapkan status
+        const config = statusConfig[data.status] || { text: "Status Tidak Diketahui", class: "" };
+        statusEl.innerText = config.text;
+        statusEl.className = `status ${config.class}`;
+
+    } catch (err) {
+        console.error(err);
+        statusEl.innerText = "❌ Gagal memuat data";
+        statusEl.className = "status rejected";
     }
-  });
-
-  const data = await res.json();
-
-  document.getElementById('id').innerText = data.id;
-  document.getElementById('policy').innerText = data.policy_id;
-  document.getElementById('statusText').innerText = data.status;
-
-  const statusEl = document.getElementById('status');
-
-  if(data.status === 'pending'){
-    statusEl.innerText = "⏳ Menunggu Verifikasi";
-    statusEl.className = "status pending";
-  }
-
-  if(data.status === 'approved'){
-    statusEl.innerText = "✅ Klaim Disetujui";
-    statusEl.className = "status approved";
-  }
-
-  if(data.status === 'rejected'){
-    statusEl.innerText = "❌ Klaim Ditolak";
-    statusEl.className = "status rejected";
-  }
 }
 
 loadClaim();

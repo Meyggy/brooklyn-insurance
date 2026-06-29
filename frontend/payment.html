@@ -48,15 +48,14 @@
 
     const savedData = localStorage.getItem('form_submission');
     const data = savedData ? JSON.parse(savedData) : null;
-
-    const userId = localStorage.getItem('user_id'); 
+    const token = localStorage.getItem('token'); // Ambil token, bukan user_id
 
     if (!data) {
         alert("Data formulir tidak ditemukan!");
         window.location.href = "products.html";
-    } else if (!userId) {
+    } else if (!token) {
         alert("Sesi login hilang. Silakan login kembali.");
-        window.location.href = "login.html"; // Arahkan ke login jika user_id tidak ada
+        window.location.href = "login.html";
     } else {
         renderPayment();
     }
@@ -78,56 +77,46 @@
         document.getElementById('res-age').innerText = data.age + " Tahun";
         document.getElementById('res-total').innerText = "Rp " + hargaFinal.toLocaleString('id-ID');
         
+        // Simpan harga final ke data untuk dikirim nanti
         data.harga_final = hargaFinal;
     }
 
-async function bayarSekarang() {
+    async function bayarSekarang() {
+        if(!token){
+            alert("Harus login!");
+            window.location.href = "login.html";
+            return;
+        }
 
-  const user_id = localStorage.getItem('user_id');
+        try {
+            const res = await fetch('http://localhost:3000/policies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // <--- PENTING: Gunakan JWT Token
+                },
+                body: JSON.stringify({
+                    product_id: data.product_id,
+                    premium: data.harga_final
+                })
+            });
 
-  if(!user_id){
-    alert("Harus login!");
-    window.location.href = "login.html";
-    return;
-  }
+            const result = await res.json();
 
-  if(!data){
-    alert("Data tidak ditemukan!");
-    return;
-  }
+            if(res.ok && result.success){
+                alert("Pembayaran berhasil!");
+                // Bersihkan data form setelah sukses
+                localStorage.removeItem('form_submission');
+                window.location.href = "history.html";
+            } else {
+                alert(result.message || "Gagal melakukan pembayaran");
+            }
 
-  const product_id = data.product_id;
-  const premium = data.harga_final;
-
-  try {
-    const res = await fetch('http://localhost:3000/policies', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'user_id': user_id
-      },
-      body: JSON.stringify({
-        product_id,
-        premium
-      })
-    });
-
-    const result = await res.json();
-
-    console.log("RESPONSE:", result);
-
-    if(result.success){
-      alert("Pembayaran berhasil!");
-      window.location.href = "history.html";
-    } else {
-      alert(result.message || "Gagal bayar");
+        } catch(err){
+            console.error(err);
+            alert("Server error, silakan coba lagi nanti.");
+        }
     }
-
-  } catch(err){
-    console.error(err);
-    alert("Server error");
-  }
-}
 </script>
 </body>
 </html>

@@ -1,30 +1,34 @@
-const auth = (req, res, next) => {
-  const user_id = req.headers['user_id'];
+const jwt = require('jsonwebtoken');
 
-  if (!user_id) {
-    return res.status(401).json({ message: 'Unauthorized' });
+// Middleware untuk memverifikasi token
+const auth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  
+  // Mengambil token dari format "Bearer <token>"
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Token tidak tersedia' });
   }
 
-  req.user_id = user_id;
-
-  console.log("AUTH OK, USER:", user_id);
-
-  next();
+  jwt.verify(token, process.env.JWT_SECRET || 'secret_key', (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: 'Token tidak valid' });
+    }
+    
+    // Menyimpan user_id dan role ke dalam request agar bisa dipakai di controller
+    req.user_id = decoded.id;
+    req.role = decoded.role; 
+    next();
+  });
 };
 
+// Middleware khusus Admin
 const isAdmin = (req, res, next) => {
-  const role = req.headers['role'];
-
-  if (!role) {
-    return res.status(403).json({ message: 'Role tidak ditemukan' });
+  // Kita cek role dari token yang sudah diverifikasi di middleware 'auth' sebelumnya
+  if (req.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Akses ditolak: Admin only' });
   }
-
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin only' });
-  }
-
-  console.log("ADMIN ACCESS");
-
   next();
 };
 

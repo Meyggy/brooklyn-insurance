@@ -114,24 +114,27 @@ button:hover{
 </div>
 
 <script>
+    // Pastikan user sudah login
+    if (!localStorage.getItem('token')) {
+        window.location.href = "index.html";
+    }
 
-const data = JSON.parse(localStorage.getItem('last_payment'));
+    const data = JSON.parse(localStorage.getItem('last_payment'));
 
-if(!data){
-  alert("Tidak ada transaksi!");
-  window.location.href = "products.html";
-}
+    if(!data){
+        alert("Tidak ada transaksi ditemukan!");
+        window.location.href = "products.html";
+    } else {
+        document.getElementById('invoice').innerText = data.id || "INV-" + Math.floor(Math.random()*10000);
+        document.getElementById('product').innerText = data.product_id;
+        document.getElementById('age').innerText = data.age;
+        document.getElementById('method').innerText = data.method || data.payment_method;
+        document.getElementById('price').innerText = "Rp " + Number(data.premium).toLocaleString();
+    }
 
-document.getElementById('invoice').innerText = data.id || "INV-UNKNOWN";
-document.getElementById('product').innerText = data.product_id;
-document.getElementById('age').innerText = data.age;
-document.getElementById('method').innerText = data.method || data.payment_method;
-document.getElementById('price').innerText = "Rp " + Number(data.premium).toLocaleString();
-
-function goHistory(){
-  window.location.href = "history.html";
-}
-
+    function goHistory(){
+        window.location.href = "history.html";
+    }
 </script>
 
 </body>

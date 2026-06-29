@@ -3,95 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Hubungi Kami - Brooklyn Insurance</title>
+<link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-body{
-  font-family:'Poppins',sans-serif;
-  margin:0;
-  background:#f4f7f6;
-}
-
-.navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:15px 50px;
-  background:white;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
-}
-
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:20px;
-}
-
-.logo{
-  width:120px;
-}
-
-.nav-links a{
-  margin:0 10px;
-  text-decoration:none;
-  color:#333;
-  font-weight:500;
-}
-
-.nav-links a:hover{
-  color:#2e7d32;
-}
-
-.nav-right{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-.user-box{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  cursor:pointer;
-  position:relative;
-}
-
-.user-avatar{
-  width:35px;
-  height:35px;
-  background:#2e7d32;
-  color:white;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-}
-
-.dropdown{
-  position:absolute;
-  top:60px;
-  right:0;
-  background:white;
-  border-radius:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
-  display:none;
-  flex-direction:column;
-  padding:10px 0;
-  min-width:160px;
-}
-
-.dropdown a{
-  display:block;
-  padding:12px 20px;
-  text-decoration:none;
-  color:#333;
-}
-
-.dropdown a:hover{
-  background:#f5f5f5;
-}
-
 .contact-wrapper{
   display:flex;
   gap:40px;
@@ -182,25 +97,10 @@ body{
 <header class="navbar">
   <div class="nav-left">
     <img src="assets/images/logo.png" class="logo">
-    <div class="nav-links">
-      <a href="index.html">Beranda</a>
-      <a href="products.html">Produk</a>
-      <a href="contact.html">Hubungi</a>
-    </div>
+    <div id="navMenu" class="nav-links"></div>
   </div>
 
-  <div class="nav-right">
-    <div class="user-box" onclick="toggleDropdown()">
-      <span id="username">User</span>
-      <div class="user-avatar" id="avatar">U</div>
-
-      <div class="dropdown" id="dropdown">
-        <a href="profile.html">Profil</a>
-        <a href="history.html">Riwayat</a>
-        <a href="#" onclick="logout()">Logout</a>
-      </div>
-    </div>
-  </div>
+  <div id="navRight" class="nav-right"></div>
 </header>
 
 <div class="contact-wrapper">
@@ -244,7 +144,9 @@ body{
   </div>
 
 </div>
+<div id="statusMessage" style="margin-top:15px; text-align:center; font-weight:bold;"></div>
 
+<button id="sendBtn" onclick="sendMessage()">Kirim Pesan</button>
 <script>
 function toggleDropdown(){
   const d = document.getElementById('dropdown');
@@ -256,31 +158,49 @@ function logout(){
   window.location.href = "index.html";
 }
 
-async function sendMessage(){
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const message = document.getElementById('message').value;
+async function sendMessage() {
+    const btn = document.getElementById('sendBtn');
+    const msgDiv = document.getElementById('statusMessage');
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
 
-  if(!name || !email || !message){
-    alert("Lengkapi semua field");
-    return;
-  }
+    if(!name || !email || !message){
+        alert("Lengkapi semua field");
+        return;
+    }
 
-  const res = await fetch('http://localhost:3000/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ name, email, message })
-  });
+    // Berikan feedback loading
+    btn.disabled = true;
+    btn.innerText = "Mengirim...";
 
-  const data = await res.json();
+    try {
+        const res = await fetch('http://localhost:3000/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message })
+        });
 
-  if(data.success){
-    alert("Pesan berhasil dikirim!");
-  } else {
-    alert("Gagal kirim pesan");
-  }
+        const data = await res.json();
+
+        if(data.success){
+            msgDiv.style.color = "#2e7d32";
+            msgDiv.innerText = "Pesan berhasil dikirim! Kami akan segera menghubungi Anda.";
+            // Reset form
+            document.getElementById('name').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('message').value = "";
+        } else {
+            throw new Error("Gagal mengirim");
+        }
+    } catch (err) {
+        msgDiv.style.color = "red";
+        msgDiv.innerText = "Terjadi kesalahan, silakan coba lagi nanti.";
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Kirim Pesan";
+    }
 }
 
 const username = localStorage.getItem('user_name');
@@ -289,6 +209,11 @@ if(username){
   document.getElementById('avatar').innerText = username.charAt(0).toUpperCase();
 }
 </script>
-
+<script src="assets/js/script.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadNavbar();      // Ini untuk navbar
+    });
+</script>
 </body>
 </html>

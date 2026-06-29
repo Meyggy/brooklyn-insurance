@@ -197,51 +197,61 @@
 </div>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const selectedPackage = urlParams.get('package') || "Basic"; 
-const productIdFromUrl = urlParams.get('id');
-const ageFromUrl = urlParams.get('age');
+// 1. Auth Guard: Jika tidak login, arahkan ke login
+window.onload = async function() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("Anda harus login terlebih dahulu");
+        window.location.href = "login.html";
+        return;
+    }
 
-window.onload = function() {
-    if(ageFromUrl) document.getElementById('age').value = ageFromUrl;
-    
-    const user = localStorage.getItem('user_name');
-    if(user) document.getElementById('userDisplayName').innerText = user;
-}
+    // (Opsional) Ambil profil user untuk pre-fill input
+    // Fetch ke /users/profile menggunakan token
+    try {
+        const res = await fetch('http://localhost:3000/users/profile', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const user = await res.json();
+        
+        // Auto-fill jika ada data
+        if (user) {
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+        }
+    } catch (err) {
+        console.error("Gagal memuat profil");
+    }
 
+    // Set UI User
+    const userName = localStorage.getItem('user_name');
+    if(userName) document.getElementById('userDisplayName').innerText = userName;
+};
+
+// 2. Submit Logic yang lebih bersih
 function submitForm() {
-    const name = document.getElementById('name').value.trim();
-    const age = document.getElementById('age').value;
-    const gender = document.getElementById('gender').value;
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const job = document.getElementById('job').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const health = document.getElementById('health').value;
-    
-    const product_id = productIdFromUrl || localStorage.getItem('product_id');
+    const fields = ['name', 'age', 'gender', 'phone', 'email', 'job', 'health', 'address'];
+    const formData = {};
+    let isComplete = true;
 
-    if(!name || !age || !gender || !phone || !email || !job || !address || !health){
+    fields.forEach(field => {
+        const val = document.getElementById(field).value.trim();
+        if(!val) isComplete = false;
+        formData[field] = val;
+    });
+
+    if(!isComplete) {
         alert("Harap lengkapi semua data formulir!");
         return;
     }
 
-    const formData = {
-        name,
-        age: parseInt(age),
-        gender,
-        phone,
-        email,
-        job,
-        address,
-        health,
-        product_id: product_id,
-        package_type: selectedPackage 
-    };
+    // Simpan ke localStorage untuk dibawa ke payment.html
+    formData.product_id = new URLSearchParams(window.location.search).get('id') || localStorage.getItem('product_id');
+    formData.package_type = new URLSearchParams(window.location.search).get('package') || "Basic";
 
     localStorage.setItem('form_submission', JSON.stringify(formData));
     
-    alert("Data berhasil diverifikasi. Menuju halaman pembayaran...");
+    // Redirect ke pembayaran
     window.location.href = "payment.html";
 }
 </script>

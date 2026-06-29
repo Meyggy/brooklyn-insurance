@@ -145,82 +145,75 @@ button:hover{
 </div>
 
 <script>
-
-if(!localStorage.getItem('user_id')){
-  alert("Login dulu");
-  window.location.href = "index.html";
+// Cek apakah user sudah login
+const token = localStorage.getItem('token');
+if (!token) {
+    alert("Silakan login terlebih dahulu");
+    window.location.href = "login.html";
 }
 
-
-async function loadPolicyOptions(){
-  try{
-    const res = await fetch('http://localhost:3000/policies/user',{
-      headers:{
-        'user_id': localStorage.getItem('user_id')
-      }
-    });
-
-    const data = await res.json();
-
+async function loadPolicyOptions() {
     const select = document.getElementById('policy_id');
+    try {
+        // Menggunakan Authorization Header dengan Bearer Token
+        const res = await fetch('http://localhost:3000/policies/user', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-    let html = '<option value="">-- Pilih Polis Aktif --</option>';
+        if (!res.ok) throw new Error("Gagal mengambil data polis");
+        
+        const data = await res.json();
+        let html = '<option value="">-- Pilih Polis Aktif --</option>';
 
-    const savedPolicy = localStorage.getItem('policy_id');
+        data.forEach(p => {
+            html += `<option value="${p.id}">🛡️ Polis #${p.id} | ${p.status}</option>`;
+        });
+        select.innerHTML = html;
 
-    data.forEach(p=>{
-      html += `
-        <option value="${p.id}" ${savedPolicy == p.id ? 'selected' : ''}>
-          🛡️ Polis #${p.id} | ${p.status}
-        </option>
-      `;
-    });
-    select.innerHTML = html;
-
-  }catch(err){
-    console.log(err);
-    alert("Gagal load polis");
-  }
+    } catch (err) {
+        console.error(err);
+        select.innerHTML = '<option value="">Gagal memuat polis</option>';
+    }
 }
 
+async function submitClaim() {
+    const policy_id = document.getElementById('policy_id').value;
+    const description = document.getElementById('desc').value;
 
-async function submitClaim(){
-  const policy_id = document.getElementById('policy_id').value;
-  const description = document.getElementById('desc').value;
-
-  if(!policy_id || !description){
-    alert("Lengkapi data!");
-    return;
-  }
-
-  try{
-    const res = await fetch('http://localhost:3000/claims',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'user_id': localStorage.getItem('user_id')
-      },
-      body: JSON.stringify({policy_id, description})
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-      localStorage.setItem('claim_id', data.claim_id);
-
-      window.location.href = "claim-detail.html";
-    }else{
-      alert("Gagal kirim klaim");
+    if (!policy_id || !description) {
+        alert("Lengkapi data!");
+        return;
     }
 
-  }catch(err){
-    console.log(err);
-    alert("Server error");
-  }
+    try {
+        // Menggunakan Authorization Header
+        const res = await fetch('http://localhost:3000/claims', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ policy_id, description })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem('claim_id', data.claim_id);
+            window.location.href = "claim-detail.html";
+        } else {
+            alert("Gagal kirim klaim: " + (data.message || "Kesalahan server"));
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Server error, silakan coba lagi nanti.");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", loadPolicyOptions);
-
 </script>
 
 </body>

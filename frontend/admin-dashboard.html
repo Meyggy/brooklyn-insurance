@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Brooklyn Insurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        :root { --primary: #1b5e20; }
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; margin: 0; display: flex; height: 100vh; }
+        #sidebar { width: 300px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
+        .user-item { padding: 20px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .user-item:hover { background: #f1f1f1; }
+        #chatArea { flex: 1; display: flex; flex-direction: column; background: #e5ddd5; }
+        #chatDisplay { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 60%; font-size: 14px; }
+        .admin-msg { background: #dcf8c6; align-self: flex-end; }
+        .user-msg { background: white; align-self: flex-start; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div style="padding:20px; font-weight:bold; background:#1b5e20; color:white;">Daftar Chat Nasabah</div>
+    <div id="userList"></div>
+</div>
+
+<div id="chatArea">
+    <div id="chatDisplay"><p style="text-align:center; padding:20px;">Pilih chat nasabah untuk melihat riwayat</p></div>
+    <div style="padding:20px; background:white; display:flex; gap:10px;">
+        <input id="adminInput" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;" placeholder="Balas pesan...">
+        <button onclick="sendAdminReply()" style="padding:10px 20px; background:#1b5e20; color:white; border:none; border-radius:5px;">Kirim</button>
+    </div>
+</div>
+
+<script>
+    const socket = io("http://localhost:3000");
+    // Ambil data dari LocalStorage saat load, jika tidak ada, mulai dengan objek kosong
+    let userMessages = JSON.parse(localStorage.getItem('saved_chat')) || {};
+    let activeUser = null;
+
+    // 1. Tampilkan List User di Sidebar saat load
+    window.onload = () => {
+        Object.keys(userMessages).forEach(userName => addUserToSidebar(userName));
+    };
+
+// Tambahkan ini di dalam script
+socket.on("connect", () => {
+    console.log("Terhubung ke server");
+    // Minta data history dari server saat pertama kali connect
+    socket.emit('load_history', 'Admin'); 
+});
+
+// Terima data history dari server
+socket.on('previous_messages', (messages) => {
+    messages.forEach(msg => {
+        // Logika untuk menampilkan pesan ke layar...
+        if (!userMessages[msg.room_id]) {
+            userMessages[msg.room_id] = [];
+            addUserToSidebar(msg.room_id);
+        }
+        userMessages[msg.room_id].push({ user: msg.sender_name, text: msg.message_text });
+    });
+    // Render pesan jika ada user yang aktif
+    if(activeUser) displayMessages();
+});
+
+    function addUserToSidebar(userName) {
+        if(document.getElementById('user-'+userName)) return;
+        const div = document.createElement("div");
+        div.id = 'user-' + userName;
+        div.className = "user-item";
+        div.innerText = userName;
+        div.onclick = () => { activeUser = userName; displayMessages(); };
+        document.getElementById("userList").appendChild(div);
+    }
+
+    function saveAndDisplay(userName) {
+        localStorage.setItem('saved_chat', JSON.stringify(userMessages));
+        if (activeUser === userName) displayMessages();
+    }
+
+    function displayMessages() {
+        document.getElementById("chatDisplay").innerHTML = userMessages[activeUser].map(m => `
+            <div class="msg ${m.user === 'Admin' ? 'admin-msg' : 'user-msg'}">
+                <b>${m.user}:</b> ${m.text}
+            </div>
+        `).join('');
+        document.getElementById("chatDisplay").scrollTop = document.getElementById("chatDisplay").scrollHeight;
+    }
+
+    function sendAdminReply() {
+        if (!activeUser) return alert("Pilih nasabah terlebih dahulu!");
+        const input = document.getElementById('adminInput');
+        socket.emit("send_message", { user: "Admin", text: input.value, target: activeUser });
+        
+        userMessages[activeUser].push({ user: "Admin", text: input.value });
+        saveAndDisplay(activeUser);
+        input.value = "";
+    }
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brooklyn Insurance</title>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -18,7 +18,7 @@
   </div>
 
   <div id="navRight" class="nav-right"></div>
-</header>
+</header>>
 <div class="container">
 
   <div class="left">
@@ -81,12 +81,34 @@
 
 </div>
 
-<script src="script.js"></script>
-
+<script src="assets/js/script.js"></script>
 <script>
-loadNavbar();
-checkLoginUI();
+    document.addEventListener("DOMContentLoaded", () => {
+        loadNavbar();      // Ini untuk navbar
+        checkLoginUI();    // <--- INI WAJIB ADA untuk ubah kotak login
+    });
 </script>
+<div style="background: #ffffff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 30px; margin-top: 30px; border: 1px solid #f0f0f0;">
+    
+    <div style="border-bottom: 2px solid #f5f5f5; padding-bottom: 15px; margin-bottom: 20px;">
+        <h3 style="color: #1b5e20; margin: 0 0 5px 0; font-size: 22px; font-weight: 700;">Environmental Health Risk</h3>
+        <p style="color: #757575; margin: 0; font-size: 14px;">Tren Polusi Udara PM 2.5 (10 Hari Terakhir) - Waspada ISPA</p>
+    </div>
 
+    <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; display: inline-block;">
+        <span style="display: block; font-size: 12px; color: #e65100; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Status Hari Ini</span>
+        <h2 id="todayAQI" style="color: #e65100; font-size: 28px; margin: 5px 0 0 0;">Loading...</h2>
+    </div>
+
+    <div style="position: relative; height: 350px; width: 100%;">
+        <canvas id="airChart"></canvas>
+    </div>
+    
+</div>
+<a href="chat.html" class="chat-fab">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+</a>
 </body>
 </html>

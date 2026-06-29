@@ -1,22 +1,54 @@
-<div id="data"></div>
+<div id="data" class="message-container">
+    <p>Memuat pesan...</p>
+</div>
+
+<style>
+    .message-container { display: grid; gap: 15px; padding: 20px; }
+    .msg-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .msg-header { font-weight: bold; color: #2e7d32; margin-bottom: 5px; }
+</style>
 
 <script>
-async function load(){
-  const res = await fetch('http://localhost:3000/messages');
-  const data = await res.json();
+async function load() {
+    const dataDiv = document.getElementById('data');
+    const token = localStorage.getItem('token'); // Ambil token dari login
 
-  let html = "";
+    try {
+        const res = await fetch('http://localhost:3000/messages', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Wajib kirim token
+                'Content-Type': 'application/json'
+            }
+        });
 
-  data.forEach(m => {
-    html += `
-      <div style="background:white; padding:15px; margin:10px;">
-        <b>${m.name}</b> (${m.email})<br>
-        ${m.message}
-      </div>
-    `;
-  });
+        if (!res.ok) throw new Error('Akses ditolak atau gagal memuat data');
 
-  document.getElementById('data').innerHTML = html;
+        const data = await res.json();
+        dataDiv.innerHTML = ""; // Bersihkan loading
+
+        if (data.length === 0) {
+            dataDiv.innerHTML = "<p>Tidak ada pesan.</p>";
+            return;
+        }
+
+        data.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'msg-card';
+            
+            // Menggunakan textContent agar aman dari script jahat (XSS)
+            card.innerHTML = `
+                <div class="msg-header"></div>
+                <div class="msg-body"></div>
+            `;
+            card.querySelector('.msg-header').textContent = `${m.name} (${m.email})`;
+            card.querySelector('.msg-body').textContent = m.message;
+            
+            dataDiv.appendChild(card);
+        });
+    } catch (err) {
+        dataDiv.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
+    }
 }
 
 load();

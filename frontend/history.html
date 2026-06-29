@@ -210,119 +210,77 @@ body{
 </div>
 
 <script>
-
-const user_id = localStorage.getItem('user_id');
-
-if(!user_id){
-  alert("Login dulu!");
-  window.location.href = "index.html";
+// Cek Token
+const token = localStorage.getItem('token');
+if (!token) {
+    alert("Silakan login terlebih dahulu");
+    window.location.href = "index.html";
 }
 
+async function load() {
+    try {
+        // Ambil Polis
+        const resPolicy = await fetch('http://localhost:3000/policies/user', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const policies = await resPolicy.json();
 
-async function load(){
-  try {
+        // Ambil Klaim
+        const resClaim = await fetch('http://localhost:3000/claims', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const claims = await resClaim.json();
 
-    const user_id = localStorage.getItem('user_id');
+        if (policies.length === 0) {
+            document.getElementById('data').innerHTML = `<div class="empty">Anda belum memiliki polis</div>`;
+            return;
+        }
 
-    const resPolicy = await fetch('http://localhost:3000/policies/user',{
-      headers:{ user_id }
-    });
+        let html = "";
+        policies.forEach(p => {
+            const claim = claims.find(c => c.policy_id == p.id);
+            const status = (claim ? claim.status : p.status) || "pending";
+            const badgeClass = status.toLowerCase();
 
-    const policies = await resPolicy.json();
-    console.log("POLICIES:", policies);
+            html += `
+                <div class="card">
+                    <div class="card-top">
+                        <div class="policy-id">POL-${p.id}</div>
+                        <div class="badge ${badgeClass}">${status}</div>
+                    </div>
+                    <div class="title">Asuransi Produk #${p.product_id}</div>
+                    <div class="info">Premi: Rp ${p.premium || '-'}</div>
+                    <div class="info">Tanggal: ${p.created_at ? p.created_at.split('T')[0] : '-'}</div>
+                    <div class="actions">
+                        ${!claim ? 
+                            `<button class="claim-btn" onclick="goClaim(${p.id})">Klaim</button>` :
+                            `<button class="claim-btn" onclick="goClaimDetail(${claim.id})">Lihat Klaim</button>`
+                        }
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('data').innerHTML = html;
 
-    const resClaim = await fetch('http://localhost:3000/claims',{
-      headers:{ user_id }
-    });
-
-    const claims = await resClaim.json();
-    console.log("CLAIMS:", claims);
-
-    let html = "";
-
-    if(!policies || policies.length === 0){
-      html = `<div class="empty">Anda belum memiliki polis</div>`;
-      document.getElementById('data').innerHTML = html;
-      return;
+    } catch (err) {
+        console.error(err);
+        alert("Gagal mengambil data, sesi mungkin berakhir.");
+        window.location.href = "login.html";
     }
-
-    policies.forEach(p => {
-
-      const claim = claims.find(c => c.policy_id == p.id);
-
-      const status = (claim ? claim.status : p.status) || "pending";
-      const badgeClass = status.toLowerCase();
-
-      html += `
-        <div class="card">
-          <div class="card-top">
-            <div class="policy-id">POL-${p.id}</div>
-            <div class="badge ${badgeClass}">
-              ${status}
-            </div>
-          </div>
-
-          <div class="title">
-            Asuransi Produk #${p.product_id}
-          </div>
-
-          <div class="info">
-            Premi: Rp ${p.premium || '-'}
-          </div>
-
-          <div class="info">
-            Tanggal: ${p.created_at || '-'}
-          </div>
-
-          <div class="actions">
-
-
-            ${
-              !claim ? `
-                <button class="claim-btn" onclick="goClaim(${p.id})">
-                  Klaim
-                </button>
-              `
-              :
-              `
-                <button class="claim-btn" onclick="goClaimDetail(${claim.id})">
-                  Lihat Klaim
-                </button>
-              `
-            }
-
-          </div>
-        </div>
-      `;
-    });
-
-    document.getElementById('data').innerHTML = html;
-
-  } catch(err){
-    console.error(err);
-    alert("Gagal ambil data");
-  }
 }
 
-function goClaim(id){
-  localStorage.setItem('policy_id', id);
-  window.location.href = "claim.html";
+function goClaim(id) {
+    localStorage.setItem('policy_id', id);
+    window.location.href = "claim.html";
 }
 
-function goDetail(id){
-  alert("Halaman detail belum dibuat");
+function goClaimDetail(id) {
+    localStorage.setItem('claim_id', id);
+    window.location.href = "claim-detail.html";
 }
 
-function goClaimDetail(id){
-  localStorage.setItem('claim_id', id);
-  window.location.href = "claim-detail.html";
-}
-
-
-
-load();
-
+// Load data saat halaman siap
+document.addEventListener("DOMContentLoaded", load);
 </script>
-<script src="script.js"></script>
-</body>
+<script src="assets/js/script.js"></script></body>
 </html>

@@ -1,36 +1,21 @@
 const db = require('../config/db');
 
 const createPolicy = async (req, res) => {
+  const { product_id, premium } = req.body;
   try {
-    const user_id = req.user_id;
-    const { product_id, premium } = req.body;
-
-    console.log("MASUK CREATE POLICY");
-    console.log("USER:", user_id);
-    console.log("DATA:", product_id, premium);
-
-    await db.query(
-      "INSERT INTO policies (user_id, product_id, premium, status) VALUES (?, ?, ?, 'active')",
-      [user_id, product_id, premium]
-    );
-
-    res.json({ success: true });
-
+    await db.query("INSERT INTO policies (user_id, product_id, premium, status) VALUES (?, ?, ?, 'active')", [req.user_id, product_id, premium]);
+    res.json({ success: true, message: 'Polis berhasil dibuat' });
   } catch (err) {
-    console.log("ERROR INSERT:", err);
-    res.json({ success: false });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
 const getUserPolicies = async (req, res) => {
   try {
-    const [rows] = await db.query(
-      "SELECT * FROM policies WHERE user_id = ?",
-      [req.user_id]
-    );
+    const [rows] = await db.query("SELECT * FROM policies WHERE user_id = ?", [req.user_id]);
     res.json(rows);
-  } catch {
-    res.json([]);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Gagal mengambil data' });
   }
 };
 
@@ -38,13 +23,9 @@ const getAllPolicies = async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM policies");
     res.json(rows);
-  } catch {
-    res.json([]);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Gagal mengambil data' });
   }
 };
 
-module.exports = {
-  createPolicy,
-  getUserPolicies,
-  getAllPolicies
-};
+module.exports = { createPolicy, getUserPolicies, getAllPolicies };

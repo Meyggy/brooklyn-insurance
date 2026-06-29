@@ -1,27 +1,22 @@
 const db = require('../config/db');
 
-exports.createMessage = async (req, res) => {
+const createMessage = async (req, res) => {
+  const { name, email, message } = req.body;
   try {
-    const { name, email, message } = req.body;
-
-    await db.query(
-      "INSERT INTO messages (name, email, message) VALUES (?, ?, ?)",
-      [name, email, message]
-    );
-
-    res.json({ success: true });
-
+    await db.query("INSERT INTO messages (name, email, message) VALUES (?, ?, ?)", [name, email, message]);
+    res.json({ success: true, message: 'Pesan berhasil dikirim' });
   } catch (err) {
-    console.log(err);
-    res.json({ success: false });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-exports.getMessages = async (req, res) => {
+const getMessages = async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM messages ORDER BY id DESC");
     res.json(rows);
   } catch (err) {
-    res.json([]);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+module.exports = { createMessage, getMessages };

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layanan Konsultasi - Brooklyn Insurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        /* Kontainer Utama */
+        .chat-layout { display: flex; gap: 30px; width: 900px; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        
+        /* Bagian Chat */
+        .chat-section { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #eee; padding-right: 20px; }
+        #chatBox { height: 350px; overflow-y: auto; background: #fafafa; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* Bagian FAQ */
+        .faq-section { flex: 1; }
+        .faq-item { margin-bottom: 15px; }
+        .faq-question { font-weight: 600; color: #1b5e20; font-size: 14px; }
+        .faq-answer { font-size: 13px; color: #666; margin-top: 5px; }
+
+        /* Pesan & Tombol */
+        .msg { padding: 10px 15px; border-radius: 12px; font-size: 13px; max-width: 80%; }
+        .msg.admin { background: #e0e0e0; align-self: flex-start; }
+        .msg.user { background: #1b5e20; color: white; align-self: flex-end; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #1b5e20; font-weight: 600; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 15px; background: #1b5e20; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="chat-layout">
+    <div class="chat-section">
+        <a href="index.html" class="back-btn">← Kembali</a>
+        <h3>Live Konsultasi</h3>
+        <div id="chatBox">
+            <div class="msg admin">Halo! Ada yang bisa kami bantu hari ini?</div>
+        </div>
+        <div style="display: flex; gap: 5px;">
+            <input id="messageInput" placeholder="Ketik pesan...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h3>Pusat Bantuan</h3>
+        <div class="faq-item">
+            <div class="faq-question">1. Bagaimana cara klaim asuransi?</div>
+            <div class="faq-answer">Buka menu "Riwayat", pilih polis, klik klaim, dan unggah dokumen pendukung.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">2. Berapa lama proses verifikasi klaim?</div>
+            <div class="faq-answer">Verifikasi dokumen memakan waktu 3-5 hari kerja.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">3. Di mana lokasi RS rekanan?</div>
+            <div class="faq-answer">Lihat daftar RS di menu Produk > Jaringan Rumah Sakit.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">4. Bagaimana cara mengubah data profil?</div>
+            <div class="faq-answer">Buka menu "Profil" lalu pilih "Ubah Data".</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io("http://localhost:3000");
+    
+    // Definisikan elemen DOM
+    const chatBox = document.getElementById('chatBox');
+    const messageInput = document.getElementById('messageInput');
+    
+    const username = localStorage.getItem('user_name') || "Nasabah";
+
+    // 1. Minta history
+    socket.emit('load_history', username);
+
+    // 2. Tampilkan history
+    socket.on('previous_messages', (messages) => {
+        messages.forEach(msg => {
+            appendMessage(msg.sender, msg.message, msg.sender === username ? 'user' : 'admin');
+        });
+    });
+
+    // 3. Fungsi kirim pesan
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        
+        socket.emit("send_message", { user: username, text: text });
+        
+        appendMessage(username, text, 'user');
+        messageInput.value = "";
+    }
+
+    // Fungsi pembantu agar kode lebih rapi dan aman
+    function appendMessage(sender, text, type) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.innerHTML = `<b>${sender}:</b> ${text}`; // Gunakan textContent jika ingin lebih aman
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Enter untuk kirim
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    // Terima pesan dari orang lain
+// Tambahkan ini di dalam script
+socket.on("connect", () => {
+    console.log("Terhubung ke server");
+    // Minta data history dari server saat pertama kali connect
+    socket.emit('load_history', 'Admin'); 
+});
+
+// Terima data history dari server
+socket.on("connect", () => {
+    const username = localStorage.getItem('user_name') || "Guest";
+    // Minta history chat nasabah ini saja
+    socket.emit('load_history', username); 
+});
+
+// Terima histori dan tampilkan
+socket.on('previous_messages', (messages) => {
+    chatBox.innerHTML = ""; // Bersihkan dulu
+    messages.forEach(msg => {
+        chatBox.innerHTML += `<div class="msg ${msg.sender_name === username ? 'user' : 'admin'}">
+            <b>${msg.sender_name}:</b> ${msg.message_text}
+        </div>`;
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
+</script>
+</body>
+</html>

@@ -243,11 +243,14 @@ body{
 
 </div>
 
-<script>
-function go(url){
-  window.location.href = url;
-}
+<script src="assets/js/script.js"></script> <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadNavbar(); // Fungsi dari script.js
+    });
+
+    function go(url){
+        window.location.href = url;
+    }
 </script>
-<script src="script.js"></script>
 </body>
 </html>
