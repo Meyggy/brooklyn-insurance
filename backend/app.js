@@ -10,7 +10,7 @@ const server = http.createServer(app); // Membungkus express dalam http server
 
 // Inisialisasi Socket.io
 const io = new Server(server, {
-    cors: { origin: "*" } 
+    cors: { origin: "*" }
 });
 
 // Middleware
@@ -42,12 +42,9 @@ io.on('connection', (socket) => {
     socket.on('load_history', async (username) => {
         try {
             // Ambil histori dari database
-            const history = await Message.findAll({
-                where: { /* sesuaikan dengan logic filter room_id/sender jika ada */ },
-                order: [['created_at', 'ASC']],
-                limit: 50
-            });
-            socket.emit('previous_messages', history);
+            const history = await Message.getAll(); 
+        
+        socket.emit('previous_messages', history);
         } catch (err) {
             console.error("Gagal load history:", err);
         }
@@ -58,25 +55,19 @@ io.on('connection', (socket) => {
         socket.join(roomName);
     });
 
+    // Di dalam io.on('connection', ...)
     socket.on('send_message', async (data) => {
-        try {
-            // Simpan ke DB
-            await Message.create({
-                sender: data.user,
-                message: data.text,
-                room_id: data.target || data.user // Gunakan target room jika ada
-            }); 
-            
-            // Broadcast ke room tujuan (atau ke semua jika admin)
-            if (data.target) {
-                io.to(data.target).emit('receive_message', data);
-            } else {
-                io.emit('receive_message', data);
-            }
-        } catch (err) {
-            console.error("Gagal simpan chat:", err);
-        }
-    });
+    try {
+        // Simpan pakai Model
+        await Message.create({ user: data.user, text: data.text });
+        console.log("Pesan tersimpan ke DB:", data.text);
+
+        // Kirim ke Admin
+        io.emit('receive_message', data);
+    } catch (err) {
+        console.error("ERROR DB:", err);
+    }
+});
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
