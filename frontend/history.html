@@ -218,27 +218,48 @@ if (!token) {
 }
 
 async function load() {
+    const dataContainer = document.getElementById('data');
+    dataContainer.innerHTML = `<div class="loading">Memuat data...</div>`;
+
     try {
-        // Ambil Polis
+        // 1. Fetch Polis (Wajib ada)
         const resPolicy = await fetch('http://localhost:3000/policies/user', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        if (resPolicy.status === 401) {
+            alert("Sesi berakhir, silakan login kembali.");
+            window.location.href = "index.html";
+            return;
+        }
+        
         const policies = await resPolicy.json();
 
-        // Ambil Klaim
-        const resClaim = await fetch('http://localhost:3000/claims', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const claims = await resClaim.json();
+        // 2. Fetch Klaim (Dipisah agar error 500 tidak memutus alur)
+        let claims = [];
+        try {
+            const resClaim = await fetch('http://localhost:3000/claims', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (resClaim.ok) {
+                claims = await resClaim.json();
+            } else {
+                console.error("Gagal mengambil klaim, server merespon:", resClaim.status);
+            }
+        } catch (e) {
+            console.warn("Gagal terhubung ke API klaim, melanjutkan dengan data polis saja.");
+        }
 
-        if (policies.length === 0) {
-            document.getElementById('data').innerHTML = `<div class="empty">Anda belum memiliki polis</div>`;
+        // 3. Render Data ke HTML
+        if (!policies || policies.length === 0) {
+            dataContainer.innerHTML = `<div class="empty">Anda belum memiliki polis.</div>`;
             return;
         }
 
         let html = "";
         policies.forEach(p => {
-            const claim = claims.find(c => c.policy_id == p.id);
+            // Gunakan optional chaining (?.) untuk mencegah error jika data undefined
+            const claim = claims?.find(c => c.policy_id == p.id);
             const status = (claim ? claim.status : p.status) || "pending";
             const badgeClass = status.toLowerCase();
 
@@ -249,7 +270,7 @@ async function load() {
                         <div class="badge ${badgeClass}">${status}</div>
                     </div>
                     <div class="title">Asuransi Produk #${p.product_id}</div>
-                    <div class="info">Premi: Rp ${p.premium || '-'}</div>
+                    <div class="info">Premi: Rp ${p.premium ? p.premium.toLocaleString('id-ID') : '-'}</div>
                     <div class="info">Tanggal: ${p.created_at ? p.created_at.split('T')[0] : '-'}</div>
                     <div class="actions">
                         ${!claim ? 
@@ -260,12 +281,17 @@ async function load() {
                 </div>
             `;
         });
-        document.getElementById('data').innerHTML = html;
+        
+        dataContainer.innerHTML = html;
 
     } catch (err) {
-        console.error(err);
-        alert("Gagal mengambil data, sesi mungkin berakhir.");
-        window.location.href = "login.html";
+        console.error("Error pada fungsi load:", err);
+        dataContainer.innerHTML = `
+            <div class="error">
+                <p>Terjadi kesalahan sistem saat memuat data.</p>
+                <button onclick="load()">Coba Lagi</button>
+            </div>
+        `;
     }
 }
 

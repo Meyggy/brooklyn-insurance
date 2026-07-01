@@ -1,220 +1,107 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajukan Klaim</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-<style>
-body{
-  font-family:'Poppins',sans-serif;
-  margin:0;
-  background:#f4f7f6;
-}
-
-.navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:15px 50px;
-  background:white;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
-}
-
-.hero{
-  background:linear-gradient(135deg,#2e7d32,#66bb6a);
-  color:white;
-  text-align:center;
-  padding:70px 20px;
-}
-
-.container{
-  max-width:700px;
-  margin:-50px auto 40px;
-  background:white;
-  padding:40px;
-  border-radius:20px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.1);
-}
-
-.steps{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:30px;
-}
-
-.circle{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  background:#2e7d32;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:auto;
-}
-
-.info{
-  background:#e8f5e9;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:20px;
-  font-size:14px;
-}
-
-.select-box{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  margin-top:10px;
-}
-
-textarea{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  margin-top:10px;
-  height:120px;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:20px;
-  background:linear-gradient(135deg,#2e7d32,#66bb6a);
-  color:white;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-button:hover{
-  transform:translateY(-2px);
-}
-
-.success{
-  margin-top:15px;
-  color:#2e7d32;
-  text-align:center;
-  font-weight:bold;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajukan Klaim - Brooklyn Insurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f4f7f6; }
+        .hero { background: linear-gradient(135deg, #2e7d32, #66bb6a); color: white; text-align: center; padding: 70px 20px; }
+        .container { max-width: 600px; margin: -50px auto 40px; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        label { display: block; margin: 15px 0 5px; font-weight: 600; }
+        select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; }
+        button { width: 100%; padding: 14px; background: #2e7d32; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; margin-top: 20px; }
+        #msg { text-align: center; margin-top: 15px; font-weight: 500; }
+    </style>
 </head>
-
 <body>
 
-<header class="navbar">
-  <div><b>Brooklyn Insurance</b></div>
-</header>
+    <div class="hero">
+        <h1>Ajukan Klaim Anda</h1>
+        <p>Proses klaim cepat dan transparan.</p>
+    </div>
 
-<div class="hero">
-  <h1>Ajukan Klaim</h1>
-  <p>Proses cepat & transparan</p>
-</div>
+    <div class="container">
+        <label>Pilih Polis Anda</label>
+        <select id="policy_id">
+            <option value="">-- Memuat Polis Aktif --</option>
+        </select>
 
-<div class="container">
+        <label>Deskripsi Kejadian</label>
+        <textarea id="desc" rows="5" placeholder="Jelaskan kronologi kejadian secara singkat..."></textarea>
 
-  <div class="steps">
-    <div><div class="circle">1</div><small>Isi</small></div>
-    <div><div class="circle">2</div><small>Verifikasi</small></div>
-    <div><div class="circle">3</div><small>Cair</small></div>
-  </div>
+        <button onclick="submitClaim()">Kirim Klaim</button>
+        <div id="msg"></div>
+    </div>
 
-  <div class="info">
-    💡 Klaim diproses dalam 1x24 jam
-  </div>
-
-  <label>Pilih Polis</label>
-  <select id="policy_id" class="select-box">
-    <option value="">-- Loading... --</option>
-  </select>
-
-  <label>Deskripsi</label>
-  <textarea id="desc" placeholder="Jelaskan kejadian..."></textarea>
-
-  <button onclick="submitClaim()">Kirim Klaim</button>
-
-  <div id="msg" class="success"></div>
-
-</div>
-
-<script>
-// Cek apakah user sudah login
-const token = localStorage.getItem('token');
-if (!token) {
-    alert("Silakan login terlebih dahulu");
-    window.location.href = "login.html";
-}
-
-async function loadPolicyOptions() {
-    const select = document.getElementById('policy_id');
-    try {
-        // Menggunakan Authorization Header dengan Bearer Token
-        const res = await fetch('http://localhost:3000/policies/user', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!res.ok) throw new Error("Gagal mengambil data polis");
+    <script>
+        const token = localStorage.getItem('token');
         
-        const data = await res.json();
-        let html = '<option value="">-- Pilih Polis Aktif --</option>';
-
-        data.forEach(p => {
-            html += `<option value="${p.id}">🛡️ Polis #${p.id} | ${p.status}</option>`;
-        });
-        select.innerHTML = html;
-
-    } catch (err) {
-        console.error(err);
-        select.innerHTML = '<option value="">Gagal memuat polis</option>';
-    }
-}
-
-async function submitClaim() {
-    const policy_id = document.getElementById('policy_id').value;
-    const description = document.getElementById('desc').value;
-
-    if (!policy_id || !description) {
-        alert("Lengkapi data!");
-        return;
-    }
-
-    try {
-        // Menggunakan Authorization Header
-        const res = await fetch('http://localhost:3000/claims', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ policy_id, description })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            localStorage.setItem('claim_id', data.claim_id);
-            window.location.href = "claim-detail.html";
-        } else {
-            alert("Gagal kirim klaim: " + (data.message || "Kesalahan server"));
+        // 1. Cek Login
+        if (!token) {
+            alert("Silakan login terlebih dahulu");
+            window.location.href = "login.html";
         }
 
-    } catch (err) {
-        console.error(err);
-        alert("Server error, silakan coba lagi nanti.");
-    }
-}
+        // 2. Load daftar polis user saat halaman dimuat
+        async function loadPolicyOptions() {
+            const select = document.getElementById('policy_id');
+            try {
+                const res = await fetch('http://localhost:3000/policies/user', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                let html = '<option value="">-- Pilih Polis Aktif --</option>';
+                data.forEach(p => {
+                    html += `<option value="${p.id}">🛡️ Polis #${p.id} - Premi Rp ${p.premium.toLocaleString('id-ID')}</option>`;
+                });
+                select.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            }
+        }
 
-document.addEventListener("DOMContentLoaded", loadPolicyOptions);
-</script>
+        // 3. Fungsi Submit Klaim
+        async function submitClaim() {
+            const policy_id = document.getElementById('policy_id').value;
+            const description = document.getElementById('desc').value;
+            const msgDiv = document.getElementById('msg');
 
+            if (!policy_id || !description) {
+                alert("Harap lengkapi semua data!");
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/claims', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ policy_id, description })
+                });
+
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    alert("Klaim berhasil diajukan!");
+                    // Simpan ID klaim ke local storage agar bisa dibaca di halaman detail
+                    localStorage.setItem('claim_id', result.claim_id);
+                    window.location.href = "history.html";
+                } else {
+                    msgDiv.innerText = "Gagal: " + result.message;
+                    msgDiv.style.color = "red";
+                }
+            } catch (err) {
+                msgDiv.innerText = "Terjadi kesalahan server.";
+                msgDiv.style.color = "red";
+            }
+        }
+
+        loadPolicyOptions();
+    </script>
 </body>
 </html>

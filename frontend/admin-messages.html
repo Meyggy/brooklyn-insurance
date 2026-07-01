@@ -33,19 +33,18 @@ async function load() {
         }
 
         data.forEach(m => {
-            const card = document.createElement('div');
-            card.className = 'msg-card';
-            
-            // Menggunakan textContent agar aman dari script jahat (XSS)
-            card.innerHTML = `
-                <div class="msg-header"></div>
-                <div class="msg-body"></div>
-            `;
-            card.querySelector('.msg-header').textContent = `${m.name} (${m.email})`;
-            card.querySelector('.msg-body').textContent = m.message;
-            
-            dataDiv.appendChild(card);
-        });
+    const card = document.createElement('div');
+    card.className = 'msg-card';
+    card.innerHTML = `
+        <div class="msg-header"></div>
+        <div class="msg-body"></div>
+    `;
+    // Gunakan nama kolom yang benar: sender_name dan message_text
+    card.querySelector('.msg-header').textContent = m.sender_name; 
+    card.querySelector('.msg-body').textContent = m.message_text;
+    
+    dataDiv.appendChild(card);
+});
     } catch (err) {
         dataDiv.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
     }

@@ -91,10 +91,10 @@
         try {
             const res = await fetch('http://localhost:3000/policies', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // <--- PENTING: Gunakan JWT Token
-                },
+headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token')}` // Harus ada Bearer
+},
                 body: JSON.stringify({
                     product_id: data.product_id,
                     premium: data.harga_final

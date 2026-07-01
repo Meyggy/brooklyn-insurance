@@ -1,11 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const http = require('http'); // Wajib ada
-const { Server } = require('socket.io'); // Wajib ada
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
-const Message = require('./models/messageModel'); // Model untuk simpan chat
+const db = require('./config/db'); // <--- PASTIKAN INI ADA
+const Message = require('./models/messageModel'); // Model pesan
 
-const app = express();
+const app = express();// Membungkus express dalam http server
 const server = http.createServer(app); // Membungkus express dalam http server
 
 // Inisialisasi Socket.io
@@ -35,43 +36,35 @@ app.get('/', (req, res) => {
 
 // --- FITUR LIVE CHAT (SOCKET.IO) ---
 // --- FITUR LIVE CHAT (SOCKET.IO) ---
+// app.js
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    // 1. TAMBAHAN: Saat nasabah/admin masuk, kirim history dari database
-    socket.on('load_history', async (username) => {
+    socket.on('join_room', (userId) => {
+        socket.join(userId);
+    });
+
+    socket.on('send_message', async (data) => {
         try {
-            // Ambil histori dari database
-            const history = await Message.getAll(); 
-        
-        socket.emit('previous_messages', history);
+            // Gunakan Model Message yang sudah di-import di atas
+            // Ini jauh lebih rapi dan menghindari error 'db is not defined'
+            await Message.create({ 
+                user: data.user, 
+                text: data.text 
+            });
+
+            // Broadcast pesan ke target
+            io.to(data.target).emit('receive_message', { 
+                user: data.user, 
+                text: data.text 
+            });
+            
         } catch (err) {
-            console.error("Gagal load history:", err);
+            console.error("Gagal simpan chat:", err);
         }
     });
 
-    // 2. LOGIKA ROOM (Agar admin bisa balas nasabah spesifik)
-    socket.on('join_room', (roomName) => {
-        socket.join(roomName);
-    });
-
-    // Di dalam io.on('connection', ...)
-    socket.on('send_message', async (data) => {
-    try {
-        // Simpan pakai Model
-        await Message.create({ user: data.user, text: data.text });
-        console.log("Pesan tersimpan ke DB:", data.text);
-
-        // Kirim ke Admin
-        io.emit('receive_message', data);
-    } catch (err) {
-        console.error("ERROR DB:", err);
-    }
-});
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+    socket.on('disconnect', () => console.log('User disconnected'));
 });
 // Error Handling Global
 app.use((err, req, res, next) => {

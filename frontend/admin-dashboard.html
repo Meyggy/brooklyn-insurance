@@ -1,103 +1,677 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Brooklyn Insurance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
-        :root { --primary: #1b5e20; }
-        body { font-family: 'Poppins', sans-serif; background: #f4f7f6; margin: 0; display: flex; height: 100vh; }
-        #sidebar { width: 300px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
-        .user-item { padding: 20px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .user-item:hover { background: #f1f1f1; }
-        #chatArea { flex: 1; display: flex; flex-direction: column; background: #e5ddd5; }
-        #chatDisplay { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 60%; font-size: 14px; }
-        .admin-msg { background: #dcf8c6; align-self: flex-end; }
-        .user-msg { background: white; align-self: flex-start; }
+        :root {
+            --primary: #155d27;
+            /* Hijau Brooklyn */
+            --bg: #f4f7f6;
+            --text-dark: #333;
+            --text-muted: #888;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-dark);
+        }
+
+        /* --- SIDEBAR KIRI --- */
+.sidebar { width: 250px; background: white; color: var(--primary); display: flex; flex-direction: column; padding: 20px 0; border-right: 1px solid var(--border); }
+
+.brand { padding: 0 25px; margin-bottom: 40px; }
+.brand img { height: 50px; width: auto; }
+
+        .brand h2 {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            opacity: 0.8;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+            border-left: 4px solid white;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 30px 40px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-circle {
+            width: 40px;
+            height: 40px;
+            background: #ddd;
+            border-radius: 50%;
+        }
+
+        /* --- STATS CARDS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .stat-card.warning {
+            border-bottom-color: #f39c12;
+        }
+
+        .stat-card h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .stat-card h2 {
+            font-size: 28px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .stat-card.warning h2 {
+            color: #f39c12;
+        }
+
+        /* --- LAYOUT GRID (Dashboard Utama) --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* Tabel Claims */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 15px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        /* Status Badges & Buttons */
+        .status {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status.pending {
+            color: #f39c12;
+        }
+
+        .status.approved {
+            color: #27ae60;
+        }
+
+        .status.rejected {
+            color: #e74c3c;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            color: white;
+        }
+
+        .btn.accept {
+            background: #155d27;
+        }
+
+        .btn.reject {
+            background: #e74c3c;
+        }
+
+        .btn.manage {
+            background: #e8f5e9;
+            color: #155d27;
+        }
+
+        /* List Pesan Ringkas (Kanan) */
+        .msg-preview {
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .msg-preview h5 {
+            font-size: 13px;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .msg-preview h5 span {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .msg-preview p {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- TAB CHAT (Live Chat WhatsApp Style) --- */
+        #chatSection {
+            height: 500px;
+            display: flex;
+            gap: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        #chatSidebar {
+            width: 250px;
+            border-right: 1px solid var(--border);
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .user-item:hover,
+        .user-item.active {
+            background: white;
+            border-left: 4px solid var(--primary);
+        }
+
+        #chatArea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #e5ddd5;
+        }
+
+        #chatDisplay {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 70%;
+            font-size: 13px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-admin {
+            background: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .chat-user {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .chat-input-area button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
     </style>
 </head>
+
 <body>
 
-<div id="sidebar">
-    <div style="padding:20px; font-weight:bold; background:#1b5e20; color:white;">Daftar Chat Nasabah</div>
-    <div id="userList"></div>
+    <aside class="sidebar">
+<div class="brand">
+    <img src="assets/images/logo.png" alt="Brooklyn Insurance Logo" style="height: 50px; width: auto; display: block;">
 </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchTab('dashboard', this)">Dashboard</li>
+            <li class="nav-item" onclick="switchTab('claims', this)">Claims</li>
+            <li class="nav-item" onclick="switchTab('messages', this)">Messages</li>
+            <li class="nav-item" style="margin-top:auto; color:#e74c3c;" onclick="logout()">Logout</li>
+        </ul>
+    </aside>
 
-<div id="chatArea">
-    <div id="chatDisplay"><p style="text-align:center; padding:20px;">Pilih chat nasabah untuk melihat riwayat</p></div>
-    <div style="padding:20px; background:white; display:flex; gap:10px;">
-        <input id="adminInput" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;" placeholder="Balas pesan...">
-        <button onclick="sendAdminReply()" style="padding:10px 20px; background:#1b5e20; color:white; border:none; border-radius:5px;">Kirim</button>
-    </div>
-</div>
+    <main class="main-content">
 
-<script>
-    const socket = io("http://localhost:3000");
-    // Ambil data dari LocalStorage saat load, jika tidak ada, mulai dengan objek kosong
-    let userMessages = JSON.parse(localStorage.getItem('saved_chat')) || {};
-    let activeUser = null;
+        <div class="header">
+            <h1 id="pageTitle">Dashboard Admin</h1>
+            <div class="header-right">
+ 
+            </div>
+        </div>
 
-    // 1. Tampilkan List User di Sidebar saat load
-    window.onload = () => {
-        Object.keys(userMessages).forEach(userName => addUserToSidebar(userName));
-    };
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h4>Claims Pending</h4>
+                <h2 id="pendingCount">0</h2>
+            </div>
+            <div class="stat-card warning">
+                <h4>Messages Unread</h4>
+                <h2 id="unreadCount">0</h2>
+            </div>
+            <div class="stat-card">
+                <h4>Claims Approved</h4>
+                <h2 id="approvedCount">0</h2>
+            </div>
+        </div>
 
-// Tambahkan ini di dalam script
-socket.on("connect", () => {
-    console.log("Terhubung ke server");
-    // Minta data history dari server saat pertama kali connect
-    socket.emit('load_history', 'Admin'); 
-});
+        <div id="tab-dashboard" class="dashboard-grid tab-content">
+            <div class="card">
+                <div class="card-title">Claim Nasabah</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NASABAH</th>
+                            <th>JENIS</th>
+                            <th>STATUS</th>
+                            <th>AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardClaimTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #888; padding: 20px;">Belum ada data klaim
+                                masuk.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <div class="card-title">Messages</div>
+                <div id="recentMessagesList">
+                    <p style="font-size:12px; color:#888;">Belum ada pesan masuk hari ini.</p>
+                </div>
+            </div>
+        </div>
 
-// Terima data history dari server
-socket.on('previous_messages', (messages) => {
-    messages.forEach(msg => {
-        // Logika untuk menampilkan pesan ke layar...
-        if (!userMessages[msg.room_id]) {
-            userMessages[msg.room_id] = [];
-            addUserToSidebar(msg.room_id);
+        <div id="tab-claims" class="tab-content" style="display:none;">
+            <div class="card">
+                <div class="card-title">Semua Data Klaim</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NASABAH</th>
+                            <th>JENIS</th>
+                            <th>STATUS</th>
+                            <th>AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullClaimTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #888; padding: 20px;">Belum ada data klaim
+                                masuk.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-messages" class="tab-content" style="display:none;">
+            <div id="chatSection">
+                <div id="chatSidebar">
+                    <div style="padding:15px; font-weight:600; background:white; border-bottom:1px solid #eee;">Daftar
+                        Chat</div>
+                    <div id="userList"></div>
+                </div>
+                <div id="chatArea">
+                    <div id="chatDisplay">
+                        <p style="text-align:center; padding:20px; color:#888; font-size:13px;">Pilih chat nasabah di
+                            kiri</p>
+                    </div>
+                    <div class="chat-input-area">
+                        <input id="adminInput" placeholder="Ketik balasan di sini..." onkeypress="handleEnter(event)">
+                        <button onclick="sendAdminReply()">Kirim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. LOGIKA UI (TABS) ---
+        function switchTab(tabId, element) {
+            // Sembunyikan semua konten
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            // Tampilkan konten yang dipilih
+            document.getElementById(`tab-${tabId}`).style.display = tabId === 'dashboard' ? 'grid' : 'block';
+
+            // Atur Stats Card (Sembunyikan kalau lagi di menu pesan)
+            document.getElementById('statsGrid').style.display = tabId === 'messages' ? 'none' : 'grid';
+
+            // Update Class Active di Sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            // Update Judul Header
+            const titles = { 'dashboard': 'Dashboard Admin', 'claims': 'Manajemen Claims', 'messages': 'Live Chat Support' };
+            document.getElementById('pageTitle').innerText = titles[tabId];
         }
-        userMessages[msg.room_id].push({ user: msg.sender_name, text: msg.message_text });
-    });
-    // Render pesan jika ada user yang aktif
-    if(activeUser) displayMessages();
+
+        // --- 2. LOGIKA CHAT REALTIME (SOCKET.IO) ---
+        const socket = io("http://localhost:3000");
+        let userMessages = JSON.parse(localStorage.getItem('admin_chat_history')) || {};
+        let activeUser = null;
+        let unreadCount = 0;
+socket.emit('join_room', 'Admin');
+        // Load Data Sidebar Chat saat Refresh
+window.onload = async () => {
+    try {
+        // 1. Tarik semua pesan dari database agar pesan yang masuk saat offline muncul
+        const response = await fetch('http://localhost:3000/messages', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const history = await response.json();
+
+        // 2. Masukkan ke variabel global userMessages
+        history.forEach(m => {
+            if (!userMessages[m.sender_name]) {
+                userMessages[m.sender_name] = [];
+                addUserToSidebar(m.sender_name);
+            }
+            userMessages[m.sender_name].push({ sender: m.sender_name, text: m.message_text, time: m.created_at });
+        });
+
+        // 3. Update UI
+        updateRecentMessages();
+        saveChat(); // Simpan ke localStorage agar tidak hilang
+    } catch (err) {
+        console.error("Gagal memuat history:", err);
+    }
+};
+
+        socket.on('receive_message', (data) => {
+    // data harus berisi { sender_name, message_text }
+    console.log("Pesan baru dari:", data.sender_name);
+    appendAdminMessage(data.sender_name, data.message_text);
 });
+        // Menambah User ke Sidebar Live Chat
+        function addUserToSidebar(user) {
+            if (document.getElementById('chat-user-' + user)) return;
+            const div = document.createElement("div");
+            div.id = 'chat-user-' + user;
+            div.className = "user-item";
+            div.innerText = user;
+            div.onclick = () => {
+                // Hapus status active dari semua, lalu tambahkan ke yang diklik
+                document.querySelectorAll('#userList .user-item').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
 
-    function addUserToSidebar(userName) {
-        if(document.getElementById('user-'+userName)) return;
-        const div = document.createElement("div");
-        div.id = 'user-' + userName;
-        div.className = "user-item";
-        div.innerText = userName;
-        div.onclick = () => { activeUser = userName; displayMessages(); };
-        document.getElementById("userList").appendChild(div);
-    }
+                activeUser = user;
+                displayMessages();
+                // Kurangi unread count (asumsi admin sudah baca)
+                if (unreadCount > 0) { unreadCount--; document.getElementById('unreadCount').innerText = unreadCount; }
+            };
+            document.getElementById("userList").appendChild(div);
+        }
 
-    function saveAndDisplay(userName) {
-        localStorage.setItem('saved_chat', JSON.stringify(userMessages));
-        if (activeUser === userName) displayMessages();
-    }
+        // Menampilkan Pesan di Ruang Chat
+        function displayMessages() {
+            const display = document.getElementById("chatDisplay");
+            if (!activeUser) return;
 
-    function displayMessages() {
-        document.getElementById("chatDisplay").innerHTML = userMessages[activeUser].map(m => `
-            <div class="msg ${m.user === 'Admin' ? 'admin-msg' : 'user-msg'}">
-                <b>${m.user}:</b> ${m.text}
+            display.innerHTML = userMessages[activeUser].map(m => `
+            <div class="chat-bubble ${m.sender === 'Admin' ? 'chat-admin' : 'chat-user'}">
+                ${m.sender !== 'Admin' ? `<b>${m.sender}</b><br>` : ''}
+                ${m.text}
+                <div style="font-size:10px; color:#888; text-align:right; margin-top:5px;">${m.time || ''}</div>
             </div>
         `).join('');
-        document.getElementById("chatDisplay").scrollTop = document.getElementById("chatDisplay").scrollHeight;
-    }
+            display.scrollTop = display.scrollHeight;
+        }
 
-    function sendAdminReply() {
-        if (!activeUser) return alert("Pilih nasabah terlebih dahulu!");
-        const input = document.getElementById('adminInput');
-        socket.emit("send_message", { user: "Admin", text: input.value, target: activeUser });
+        // Mengirim Balasan
+        function sendAdminReply() {
+            const input = document.getElementById('adminInput');
+            if (!activeUser || !input.value.trim()) return;
+
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            socket.emit("send_message", { user: "Admin", text: input.value, target: activeUser });
+
+            userMessages[activeUser].push({ sender: "Admin", text: input.value, time: timeStr });
+            saveChat();
+            displayMessages();
+            input.value = "";
+        }
+
+        // Enter untuk kirim
+        function handleEnter(e) { if (e.key === 'Enter') sendAdminReply(); }
+
+        // Simpan ke LocalStorage
+        function saveChat() { localStorage.setItem('admin_chat_history', JSON.stringify(userMessages)); }
+
+        // --- 3. INTEGRASI DASHBOARD: Update list pesan singkat di tab Dashboard ---
+        function updateRecentMessages() {
+            const recentList = document.getElementById('recentMessagesList');
+            const users = Object.keys(userMessages);
+            if (users.length === 0) return;
+
+            // Ambil pesan terakhir dari masing-masing user (Maksimal 3 user untuk preview)
+            let html = '';
+            users.slice(-3).reverse().forEach(user => {
+                const msgs = userMessages[user];
+                const lastMsg = msgs[msgs.length - 1];
+                html += `
+                <div class="msg-preview" onclick="switchTab('messages', document.querySelectorAll('.nav-item')[2]); document.getElementById('chat-user-${user}').click();">
+                    <h5>${user} <span>${lastMsg.time || 'Baru saja'}</span></h5>
+                    <p>${lastMsg.sender === 'Admin' ? 'Anda: ' : ''}${lastMsg.text}</p>
+                </div>
+            `;
+            });
+            recentList.innerHTML = html;
+        }
+        async function updateDashboard() {
+            try {
+                // 1. Tarik data dari API
+                const response = await fetch('http://localhost:3000/claims'); // Pastikan route ini ada di app.js
+                const claims = await response.json(); // Data berupa array klaim
+
+                // 2. Hitung jumlah secara otomatis
+                const pending = claims.filter(c => c.status === 'pending').length;
+                const approved = claims.filter(c => c.status === 'approved').length;
+
+                // 3. Update DOM (Angka-angka di kartu)
+                document.getElementById('pendingCount').innerText = pending;
+                document.getElementById('approvedCount').innerText = approved;
+
+                // 4. Update Tabel juga jika perlu
+                renderClaimTable(claims);
+
+            } catch (err) {
+                console.error("Gagal update dashboard:", err);
+            }
+        }
+
+async function loadAllMessages() {
+    // 1. Ubah URL ke '/messages' (karena route ini yang tersedia di backend)
+    // 2. Jangan lupa sertakan token otorisasi agar bisa diakses admin
+    const token = localStorage.getItem('token');
+    
+    try {
+        const res = await fetch('http://localhost:3000/messages', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!res.ok) throw new Error('Gagal memuat pesan');
+
+        const data = await res.json();
         
-        userMessages[activeUser].push({ user: "Admin", text: input.value });
-        saveAndDisplay(activeUser);
-        input.value = "";
+        // Bersihkan data lama sebelum menampilkan yang baru
+        const dataDiv = document.getElementById('data'); 
+        if (dataDiv) dataDiv.innerHTML = "";
+
+        data.forEach(msg => {
+            // Lanjutkan logika penambahan pesan Anda di sini
+            console.log(msg);
+        });
+    } catch (err) {
+        console.error("Error memuat pesan:", err);
     }
-</script>
+}
+
+loadAllMessages(); // Panggil saat halaman dimuat
+        // Contoh fungsi untuk update status klaim
+        async function updateClaim(id, newStatus) {
+            // 1. Kirim update ke server
+            await fetch(`http://localhost:3000/claims/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            // 2. PENTING: Update tampilan setelah aksi selesai
+            alert("Status klaim berhasil diubah!");
+            updateDashboard(); // <--- INI KUNCINYA!
+        }
+
+        // Logout
+        function logout() { localStorage.clear(); window.location.href = "index.html"; }
+    </script>
 </body>
+
+
 </html>
