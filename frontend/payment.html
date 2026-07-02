@@ -15,6 +15,10 @@
         select, button { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; }
         button { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; }
         button:hover { background: #1b5e20; }
+
+        /* Modal Pop-up Style */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -42,33 +46,34 @@
     <button id="btn-pay" onclick="bayarSekarang()">Bayar Sekarang</button>
 </div>
 
+<!-- Modal Pop-up -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: #2e7d32;">Berhasil!</h2>
+        <p>Pembayaran Anda telah diterima dan polis telah aktif.</p>
+        <button onclick="window.location.href='history.html'">Lihat Polis</button>
+    </div>
+</div>
+
 <script>
-    const BASE_PRICES = { "1": 100000, "2": 150000, "3": 200000 };
-    const MULTIPLIERS = { "Basic": 1, "Standard": 1.5, "Premium": 2 };
+    // Menggunakan struktur data dari file asli[cite: 27]
+    const data = JSON.parse(localStorage.getItem('form_submission'));
+    const token = localStorage.getItem('token');
 
-    const savedData = localStorage.getItem('form_submission');
-    const data = savedData ? JSON.parse(savedData) : null;
-    const token = localStorage.getItem('token'); // Ambil token, bukan user_id
-
-    if (!data) {
-        alert("Data formulir tidak ditemukan!");
+    if (!data || !token) {
         window.location.href = "products.html";
-    } else if (!token) {
-        alert("Sesi login hilang. Silakan login kembali.");
-        window.location.href = "login.html";
     } else {
         renderPayment();
     }
 
     function renderPayment() {
-        const base = BASE_PRICES[data.product_id] || 0;
-        const mult = MULTIPLIERS[data.package_type] || 1;
-        let total = base * mult;
-
-        if (data.age > 20) {
-            total += (data.age - 20) * 0.02 * total;
-        }
-
+        // Kalkulasi tetap di sini untuk display, tapi eksekusi di backend
+        const BASE_PRICES = { "1": 100000, "2": 150000, "3": 200000 };
+        const MULTIPLIERS = { "Basic": 1, "Standard": 1.5, "Premium": 2 };
+        
+        let total = BASE_PRICES[data.product_id] * MULTIPLIERS[data.package_type];
+        if (data.age > 20) total += (data.age - 20) * 0.02 * total;
+        
         const hargaFinal = Math.round(total);
 
         document.getElementById('res-name').innerText = data.name;
@@ -77,43 +82,31 @@
         document.getElementById('res-age').innerText = data.age + " Tahun";
         document.getElementById('res-total').innerText = "Rp " + hargaFinal.toLocaleString('id-ID');
         
-        // Simpan harga final ke data untuk dikirim nanti
         data.harga_final = hargaFinal;
     }
 
     async function bayarSekarang() {
-        if(!token){
-            alert("Harus login!");
-            window.location.href = "login.html";
-            return;
-        }
-
         try {
             const res = await fetch('http://localhost:3000/policies', {
                 method: 'POST',
-headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('token')}` // Harus ada Bearer
-},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     product_id: data.product_id,
                     premium: data.harga_final
                 })
             });
 
-            const result = await res.json();
-
-            if(res.ok && result.success){
-                alert("Pembayaran berhasil!");
-                // Bersihkan data form setelah sukses
+            if(res.ok) {
+                // Tampilkan Modal sukses
+                document.getElementById('successModal').style.display = 'flex';
                 localStorage.removeItem('form_submission');
-                window.location.href = "history.html";
             } else {
-                alert(result.message || "Gagal melakukan pembayaran");
+                alert("Gagal melakukan pembayaran");
             }
-
         } catch(err){
-            console.error(err);
             alert("Server error, silakan coba lagi nanti.");
         }
     }

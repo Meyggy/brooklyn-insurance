@@ -231,27 +231,38 @@ window.onload = async function() {
 // 2. Submit Logic yang lebih bersih
 function submitForm() {
     const fields = ['name', 'age', 'gender', 'phone', 'email', 'job', 'health', 'address'];
-    const formData = {};
+    const formData = {
+        // Ambil ID produk dan paket dari URL atau localStorage
+        product_id: new URLSearchParams(window.location.search).get('id') || localStorage.getItem('product_id'),
+        package_type: new URLSearchParams(window.location.search).get('package') || "Basic"
+    };
+
     let isComplete = true;
 
+    // Validasi input
     fields.forEach(field => {
         const val = document.getElementById(field).value.trim();
-        if(!val) isComplete = false;
+        if(!val) {
+            isComplete = false;
+        }
         formData[field] = val;
     });
+
+    // Validasi data produk
+    if (!formData.product_id) {
+        alert("ID Produk tidak ditemukan. Silakan pilih produk dari halaman Produk.");
+        return;
+    }
 
     if(!isComplete) {
         alert("Harap lengkapi semua data formulir!");
         return;
     }
 
-    // Simpan ke localStorage untuk dibawa ke payment.html
-    formData.product_id = new URLSearchParams(window.location.search).get('id') || localStorage.getItem('product_id');
-    formData.package_type = new URLSearchParams(window.location.search).get('package') || "Basic";
-
+    // Simpan ke localStorage
     localStorage.setItem('form_submission', JSON.stringify(formData));
     
-    // Redirect ke pembayaran
+    // Pindah ke payment
     window.location.href = "payment.html";
 }
 </script>
