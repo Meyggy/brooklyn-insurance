@@ -1,27 +1,47 @@
 const db = require('../config/db');
 
 const createMessage = async (req, res) => {
-  // Frontend harus mengirim: sender, message, target (sebagai receiver_name)
-  const { sender, message, target } = req.body; 
+  const { message, target } = req.body; 
+  const sender = req.user.name; // Didapat dari auth JWT
+  const role = req.user.role.toLowerCase();
+
+  // Logika Kunci: Jika admin yang kirim, kamarnya adalah nama target (customer).
+  // Jika customer yang kirim, kamarnya adalah namanya sendiri.
+  const room_id = role === 'admin' ? target : sender;
+  const receiver = role === 'admin' ? target : 'Admin';
+
   try {
     await db.query(
       "INSERT INTO messages (sender_name, message_text, receiver_name, room_id, created_at) VALUES (?, ?, ?, ?, NOW())",
-      [sender, message, target, sender, NOW()] // room_id disamakan dengan sender agar mudah di-track
+      [sender, message, receiver, room_id]
     );
-    res.json({ success: true });
+    res.json({ success: true, message: 'Pesan terkirim' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Database error' });
   }
 };
 
 const getAllMessages = async (req, res) => {
-  try {
-    // Sesuaikan dengan nama kolom Anda
-    const [rows] = await db.query("SELECT * FROM messages ORDER BY created_at ASC");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ success: false });
-  }
+    try {
+        const user = req.user;
+        let query;
+        let params;
+
+        if (user.role.toLowerCase() === 'admin') {
+            // Admin melihat semua pesan
+            query = "SELECT * FROM messages ORDER BY created_at ASC";
+            params = [];
+        } else {
+            // Nasabah HANYA melihat pesan di kamarnya sendiri
+            query = "SELECT * FROM messages WHERE room_id = ? ORDER BY created_at ASC";
+            params = [user.name]; 
+        }
+
+        const [rows] = await db.query(query, params);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Gagal mengambil pesan' });
+    }
 };
 
 module.exports = { createMessage, getAllMessages };

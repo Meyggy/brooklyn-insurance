@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/messageController');
-const { auth, isAdmin } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
-// Customer bisa kirim pesan (tidak perlu auth)
-router.post('/', messageController.createMessage);
+// Tambahkan auth di sini agar req.user terbaca
+router.post('/', auth, messageController.createMessage);
 
-// Hanya Admin yang bisa melihat daftar pesan
-router.get('/', auth, isAdmin, messageController.getMessages);
+// Route get sudah aman
+router.get('/', auth, messageController.getAllMessages);
 
 module.exports = router;
