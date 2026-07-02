@@ -32,65 +32,69 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log(`User tersambung: ${socket.id}`);
 
-    socket.on('join_room', (userId) => {
-        socket.join(userId);
+    // Event saat user masuk ke room-nya masing-masing
+    socket.on('join_room', (roomName) => {
+        socket.join(roomName);
+        console.log(`Socket ${socket.id} berhasil masuk ke room: ${roomName}`);
     });
 
-   socket.on('send_message', async (data) => {
+    // A. LOGIKA: NASABAH KIRIM PESAN KE ADMIN
+    socket.on('send_message', async (data) => {
+        console.log("Data diterima dari Nasabah:", data);
         try {
-            // PERBAIKAN: Sesuaikan field dengan kebutuhan messageModel.js
-            await Message.create({ 
-                sender_name: data.user, 
-                message_text: data.text,
-                receiver_name: data.target || 'Admin', // Jika nasabah kirim, otomatis ke Admin
-                room_id: data.user // Room menggunakan nama nasabah agar kamarnya konsisten
-            });
-
-            // Broadcast pesan ke target (Admin)
-            io.to(data.target || 'Admin').emit('receive_message', { 
-                user: data.user, 
-                text: data.text 
-            });
-            
-            console.log(`Pesan sukses dikirim dari ${data.user} ke Admin`);
-        } catch (err) {
-            console.error("Gagal simpan chat nasabah:", err);
-        }
-    });
-    socket.on('admin_send_to_user', async (data) => {
-        try {
-            // DEBUG: Cek apa yang dikirim admin
-            console.log("Data diterima dari Admin:", data);
-
-            // Validasi: Jika data kosong, jangan lanjut
-            if (!data.target || !data.text) {
-                console.error("Data tidak lengkap! Target:", data.target, "Text:", data.text);
+            if (!data.user || !data.text) {
+                console.error("Gagal simpan: Nama pengirim atau isi pesan kosong!");
                 return;
             }
 
-            // SIMPAN KE DB: Pastikan nama kolom SAMA PERSIS dengan di messageModel.js
-            // Gunakan string 'Admin' untuk sender, jangan data.user (karena sering undefined)
+            // Simpan permanen ke Database
+            await Message.create({ 
+                sender_name: data.user, 
+                message_text: data.text,
+                receiver_name: 'Admin', 
+                room_id: data.user // Kamar chat menggunakan nama nasabah
+            });
+
+            // Teruskan pesan secara real-time ke layar Admin
+            io.to('Admin').emit('receive_message', { 
+                user: data.user, 
+                text: data.text 
+            });
+        } catch (err) {
+            console.error("ERROR SAAT SIMPAN CHAT NASABAH:", err.message);
+        }
+    });
+
+    // B. LOGIKA: ADMIN BALAS PESAN KE NASABAH SPESIFIK
+    socket.on('admin_send_to_user', async (data) => {
+        console.log("Data diterima dari Admin:", data);
+        try {
+            if (!data.target || !data.text) {
+                console.error("Gagal meneruskan: Target nasabah atau isi pesan kosong!");
+                return;
+            }
+
+            // Simpan permanen ke Database
             await Message.create({ 
                 sender_name: 'Admin', 
                 message_text: data.text,
-                receiver_name: data.target, // target dari frontend
-                room_id: data.target        // room_id dari frontend
+                receiver_name: data.target, 
+                room_id: data.target // Room ID tetap nama nasabah supaya satu riwayat
             });
 
-            // KIRIM KE NASABAH
+            // Teruskan pesan secara real-time ke layar nasabah yang dituju
             io.to(data.target).emit('receive_message', { 
                 user: 'Admin', 
                 text: data.text 
             });
-            
-            console.log(`Pesan sukses diteruskan ke: ${data.target}`);
         } catch (err) {
-            console.error("GAGAL SIMPAN CHAT ADMIN:", err);
+            console.error("ERROR SAAT SIMPAN CHAT ADMIN:", err.message);
         }
     });
-    socket.on('disconnect', () => console.log('User disconnected'));
+
+    socket.on('disconnect', () => console.log('User terputus'));
 });
 
 app.use((err, req, res, next) => {

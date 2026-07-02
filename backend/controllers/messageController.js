@@ -23,16 +23,17 @@ const createMessage = async (req, res) => {
 
 const getAllMessages = async (req, res) => {
     try {
-        const user = req.user;
+        const user = req.user; 
         let query;
         let params;
 
-        if (user.role.toLowerCase() === 'admin') {
-            // Admin melihat semua pesan
+        // PERBAIKAN UTAMA: Gunakan .toLowerCase() agar tidak sensitif huruf besar/kecil
+        if (user.role && user.role.toLowerCase() === 'admin') {
+            // Admin: Mengambil semua riwayat pesan untuk dikelompokkan di dashboard
             query = "SELECT * FROM messages ORDER BY created_at ASC";
             params = [];
         } else {
-            // Nasabah HANYA melihat pesan di kamarnya sendiri
+            // Nasabah: Hanya mengambil chat di room miliknya sendiri
             query = "SELECT * FROM messages WHERE room_id = ? ORDER BY created_at ASC";
             params = [user.name]; 
         }
@@ -40,7 +41,7 @@ const getAllMessages = async (req, res) => {
         const [rows] = await db.query(query, params);
         res.json(rows);
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Gagal mengambil pesan' });
+        res.status(500).json({ success: false, message: 'Gagal mengambil riwayat pesan' });
     }
 };
 
