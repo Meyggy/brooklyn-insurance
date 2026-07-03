@@ -176,7 +176,7 @@ async function sendMessage() {
     btn.innerText = "Mengirim...";
 
     try {
-        const res = await fetch('http://localhost:3000/messages', {
+        const res = await fetch("https://brooklyn-insurance-production.up.railway.app/messages", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, message })

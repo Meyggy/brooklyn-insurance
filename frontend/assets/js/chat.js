@@ -1,4 +1,4 @@
-const socket = io("http://localhost:3000");
+const socket = io("https://brooklyn-insurance-production.up.railway.app");
 const username = localStorage.getItem("user_name") || "Nasabah";
 
 socket.emit('join_room', username);
@@ -6,7 +6,7 @@ socket.emit('join_room', username);
 async function loadHistory() {
     const token = localStorage.getItem('token');
     
-    const res = await fetch('http://localhost:3000/chat/history', {
+    const res = await fetch('https://brooklyn-insurance-production.up.railway.app/chat/history', {
         headers: { 
             'Authorization': `Bearer ${token}` 
         }

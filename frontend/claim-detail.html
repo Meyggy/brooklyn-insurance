@@ -92,7 +92,7 @@ async function loadClaim() {
     };
 
     try {
-        const res = await fetch(`http://localhost:3000/claims/${claim_id}`, {
+        const res = await fetch(`https://brooklyn-insurance-production.up.railway.app/claims/${claim_id}`, {
             headers: {
                 'Authorization': `Bearer ${token}` // Middleware auth akan mengecek ini
             }

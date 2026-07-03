@@ -137,35 +137,30 @@ async function register() {
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     
-    // UI Elements
     const btn = document.getElementById('btn');
     const loadingText = document.getElementById('loading');
     
-    // 1. Basic Validation
     if (!name || !email || !password) {
         alert("Isi semua field!");
         return;
     }
     
-    // Email regex validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         alert("Format email tidak valid!");
         return;
     }
 
-    // Password length validation
     if (password.length < 6) {
         alert("Password minimal 6 karakter!");
         return;
     }
 
-    // 2. UI Loading State
     btn.disabled = true;
     loadingText.innerText = "Mendaftarkan akun...";
 
     try {
-        const res = await fetch('http://localhost:3000/users/register', {
+        const res = await fetch("https://brooklyn-insurance-production.up.railway.app/users/register", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
@@ -185,7 +180,6 @@ async function register() {
         console.error(err);
         alert("Server error, silakan coba lagi nanti.");
     } finally {
-        // 3. Reset UI state
         btn.disabled = false;
         loadingText.innerText = "";
     }

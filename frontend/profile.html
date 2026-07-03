@@ -198,7 +198,7 @@ if (!token) {
 
 async function loadProfile() {
     try {
-        const res = await fetch('http://localhost:3000/users/profile', {
+        const res = await fetch("https://brooklyn-insurance-production.up.railway.app/users/profile", {
             headers: {
                 'Authorization': `Bearer ${token}` // Keamanan JWT
             }
@@ -223,14 +223,14 @@ async function loadProfile() {
 async function loadStats() {
     try {
         // Fetch Polis
-        const resPol = await fetch('http://localhost:3000/policies/user', {
+        const resPol = await fetch("https://brooklyn-insurance-production.up.railway.app/policies/user", {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const pol = await resPol.json();
         document.getElementById('totalPolis').innerText = Array.isArray(pol) ? pol.length : 0;
 
         // Fetch Klaim
-        const resCl = await fetch('http://localhost:3000/claims/user', {
+        const resCl = await fetch("https://brooklyn-insurance-production.up.railway.app/claims/user", {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const cl = await resCl.json();
