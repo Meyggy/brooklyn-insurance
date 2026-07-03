@@ -241,7 +241,7 @@ td {
 
 
 <script>
-    const socket = io("https://brooklyn-insurance-production.up.railway.app");
+    const socket = io("http://localhost:3000");
     const token = localStorage.getItem('token');
     
     let chatData = {}; 
@@ -350,7 +350,6 @@ async function loadClaims() {
         const claims = await res.json();
         const body = document.getElementById('claimBody');
         
-        // Kita tambahkan kolom Description di sini
         body.innerHTML = claims.map(c => `
             <tr>
                 <td>${c.user_name}</td>
@@ -366,7 +365,7 @@ async function loadClaims() {
 }
 async function loadPolis() {
     try {
-        const res = await fetch('http://localhost:3000/policies/user', {
+        const res = await fetch('http://localhost:3000/policies', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const policies = await res.json();

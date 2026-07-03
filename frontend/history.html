@@ -223,7 +223,7 @@ async function load() {
 
     try {
         // 1. Fetch Polis (Wajib ada)
-        const resPolicy = await fetch('https://brooklyn-insurance-production.up.railway.apprance-production.up.railway.app/policies/user', {
+        const resPolicy = await fetch('http://localhost:3000/policies/user', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
