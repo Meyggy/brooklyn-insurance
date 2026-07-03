@@ -257,7 +257,7 @@ td {
 
     async function loadMessages() {
         try {
-            const res = await fetch('https://brooklyn-insurance-production.up.railway.app/messages', { 
+            const res = await fetch('http://localhost:3000/
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) {
@@ -344,7 +344,7 @@ td {
 
 async function loadClaims() {
     try {
-        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/claims', { 
+        const res = await fetch('http://localhost:3000/
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const claims = await res.json();
@@ -366,7 +366,7 @@ async function loadClaims() {
 }
 async function loadPolis() {
     try {
-        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/policies', { 
+        const res = await fetch('http://localhost:3000/
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const policies = await res.json();
@@ -384,7 +384,7 @@ async function loadPolis() {
     } catch (err) { console.error("Error load polis:", err); }
 }
     async function updateClaim(id, status) {
-        await fetch(`https://brooklyn-insurance-production.up.railway.app/claims/${id}`, {
+        await fetch(`http://localhost:3000/claims/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status })

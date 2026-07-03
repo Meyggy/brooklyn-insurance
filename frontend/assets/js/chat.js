@@ -7,7 +7,7 @@ async function loadHistory() {
     const token = localStorage.getItem('token');
     
     // Pastikan header Authorization dikirim
-    const res = await fetch('https://brooklyn-insurance-production.up.railway.app/messages', {
+    const res = await fetch('http://localhost:3000/
         headers: { 
             'Authorization': `Bearer ${token}` 
         }
