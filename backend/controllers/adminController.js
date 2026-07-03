@@ -2,7 +2,6 @@ const db = require('../config/db');
 
 const getDashboard = async (req, res) => {
   try {
-    // 1. Ambil data statistik untuk kartu dashboard
     const [stats] = await db.query(`
       SELECT 
         (SELECT COUNT(*) FROM users) AS total_users,
@@ -10,7 +9,6 @@ const getDashboard = async (req, res) => {
         (SELECT COUNT(*) FROM claims) AS total_claims
     `);
 
-    // 2. Ambil antrean klaim yang PENDING beserta nama nasabahnya
     const [pendingClaims] = await db.query(`
       SELECT c.*, u.name as user_name 
       FROM claims c 
@@ -19,11 +17,10 @@ const getDashboard = async (req, res) => {
       ORDER BY c.id DESC
     `);
 
-    // Kirim keduanya ke frontend
     res.json({
         success: true,
         stats: stats[0],
-        pending_claims: pendingClaims // Frontend bisa pakai ini untuk nampilin tombol Accept/Reject
+        pending_claims: pendingClaims
     });
 
   } catch (err) {

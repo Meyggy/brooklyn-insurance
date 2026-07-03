@@ -6,7 +6,6 @@ socket.emit('join_room', username);
 async function loadHistory() {
     const token = localStorage.getItem('token');
     
-    // Pastikan header Authorization dikirim
     const res = await fetch('http://localhost:3000/chat/history', {
         headers: { 
             'Authorization': `Bearer ${token}` 
@@ -23,7 +22,6 @@ async function loadHistory() {
     chatBox.innerHTML = ""; 
 
     data.forEach(msg => {
-        // Gunakan logic: apakah pesan ini milik user atau admin
         appendMessage(msg.sender_name, msg.message_text, msg.sender_name === username ? 'user' : 'admin');
     });
 }
@@ -31,7 +29,6 @@ function sendMessage() {
     const input = document.getElementById("messageInput");
     if (!input.value.trim()) return;
 
-    // Payload harus sama dengan struktur di app.js
     const payload = { user: username, text: input.value, target: 'Admin' };
     socket.emit("send_message", payload);
     

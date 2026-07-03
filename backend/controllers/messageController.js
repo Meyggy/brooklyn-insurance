@@ -2,11 +2,10 @@ const db = require('../config/db');
 
 const createMessage = async (req, res) => {
   const { message, target } = req.body; 
-  const sender = req.user.name; // Didapat dari auth JWT
+  const sender = req.user.name; 
   const role = req.user.role.toLowerCase();
 
-  // Logika Kunci: Jika admin yang kirim, kamarnya adalah nama target (customer).
-  // Jika customer yang kirim, kamarnya adalah namanya sendiri.
+
   const room_id = role === 'admin' ? target : sender;
   const receiver = role === 'admin' ? target : 'Admin';
 
@@ -27,13 +26,10 @@ const getAllMessages = async (req, res) => {
         let query;
         let params;
 
-        // PERBAIKAN UTAMA: Gunakan .toLowerCase() agar tidak sensitif huruf besar/kecil
         if (user.role && user.role.toLowerCase() === 'admin') {
-            // Admin: Mengambil semua riwayat pesan untuk dikelompokkan di dashboard
             query = "SELECT * FROM messages ORDER BY created_at ASC";
             params = [];
         } else {
-            // Nasabah: Hanya mengambil chat di room miliknya sendiri
             query = "SELECT * FROM messages WHERE room_id = ? ORDER BY created_at ASC";
             params = [user.name]; 
         }

@@ -35,13 +35,11 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     console.log(`User tersambung: ${socket.id}`);
 
-    // Event saat user masuk ke room-nya masing-masing
     socket.on('join_room', (roomName) => {
         socket.join(roomName);
         console.log(`Socket ${socket.id} berhasil masuk ke room: ${roomName}`);
     });
 
-    // A. LOGIKA: NASABAH KIRIM PESAN KE ADMIN
     socket.on('send_message', async (data) => {
         console.log("Data diterima dari Nasabah:", data);
         try {
@@ -50,15 +48,13 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            // Simpan permanen ke Database
             await Message.create({ 
                 sender_name: data.user, 
                 message_text: data.text,
                 receiver_name: 'Admin', 
-                room_id: data.user // Kamar chat menggunakan nama nasabah
+                room_id: data.user 
             });
 
-            // Teruskan pesan secara real-time ke layar Admin
             io.to('Admin').emit('receive_message', { 
                 user: data.user, 
                 text: data.text 
@@ -68,7 +64,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // B. LOGIKA: ADMIN BALAS PESAN KE NASABAH SPESIFIK
     socket.on('admin_send_to_user', async (data) => {
         console.log("Data diterima dari Admin:", data);
         try {
@@ -77,15 +72,13 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            // Simpan permanen ke Database
             await Message.create({ 
                 sender_name: 'Admin', 
                 message_text: data.text,
                 receiver_name: data.target, 
-                room_id: data.target // Room ID tetap nama nasabah supaya satu riwayat
+                room_id: data.target 
             });
 
-            // Teruskan pesan secara real-time ke layar nasabah yang dituju
             io.to(data.target).emit('receive_message', { 
                 user: 'Admin', 
                 text: data.text 

@@ -190,14 +190,12 @@ nav a{
 <script src="assets/js/script.js"></script>
 
 <script>
-// 1. Proteksi Halaman: Cek apakah user sudah login
 const token = localStorage.getItem('token');
 if (!token) {
     alert("Silakan login terlebih dahulu");
     window.location.href = "index.html";
 }
 
-// 2. Load Data Profile
 async function loadProfile() {
     try {
         const res = await fetch('http://localhost:3000/users/profile', {
@@ -222,7 +220,6 @@ async function loadProfile() {
     }
 }
 
-// 3. Load Stats (Policies & Claims)
 async function loadStats() {
     try {
         // Fetch Polis
@@ -244,14 +241,12 @@ async function loadStats() {
     }
 }
 
-// 4. Utility Functions
 function logout() {
     localStorage.clear();
     window.location.href = "index.html";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Fungsi loadNavbar() akan ada di script.js pusat nanti
     if (typeof loadNavbar === 'function') loadNavbar(); 
     
     loadProfile();

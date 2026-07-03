@@ -1,7 +1,5 @@
-// --- CONFIGURATION ---
 const API_BASE = 'http://localhost:3000';
 
-// --- CORE: AUTH & API UTILITIES ---
 function getToken() { return localStorage.getItem('token'); }
 
 async function apiFetch(url, options = {}) {
@@ -13,7 +11,6 @@ async function apiFetch(url, options = {}) {
     
     const response = await fetch(url, { ...options, headers });
     
-    // Auto-logout jika token expired/unauthorized
     if (response.status === 401) {
         logout();
         throw new Error("Sesi berakhir");
@@ -26,7 +23,6 @@ function logout() {
     window.location.href = "index.html";
 }
 
-// --- UI HELPERS ---
 function loadNavbar() {
     const navMenu = document.getElementById('navMenu');
     const navRight = document.getElementById('navRight');
@@ -70,7 +66,6 @@ function toggleDropdown() {
     if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
 }
 
-// --- AUTH LOGIC ---
 async function login() {
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -93,7 +88,6 @@ async function login() {
     }
 }
 
-// --- PAGE SPECIFIC LOGICS (Dipanggil sesuai kebutuhan) ---
 async function loadProducts() {
     const container = document.getElementById('product-list');
     if (!container) return;
@@ -114,8 +108,7 @@ async function loadProducts() {
 async function loadAdminDashboard() {
     if (localStorage.getItem('role') !== 'admin') window.location.href = "index.html";
     
-    // Gabungkan loadDashboard, loadClaims, dll jadi satu fungsi jika perlu
-    // Contoh mengambil statistik:
+
     try {
         const res = await apiFetch(`${API_BASE}/admin/dashboard`);
         // update UI dashboard...
@@ -128,7 +121,6 @@ async function loadAirQualityChart() {
 
     const ctx = canvas.getContext('2d');
     
-    // PERBAIKAN 1: Tambahkan past_days=1 di URL agar data selalu cukup
     const apiUrl = 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=-6.2088&longitude=106.8456&hourly=pm2_5&timezone=Asia%2FJakarta&past_days=1&forecast_days=0';
 
     let labels = [];
@@ -140,7 +132,6 @@ async function loadAirQualityChart() {
         if (!response.ok) throw new Error("Gagal terhubung ke API");
         const data = await response.json();
 
-        // PERBAIKAN 2: Saring (filter) data yang isinya null (jam masa depan)
         let validTimes = [];
         let validPM25 = [];
         
@@ -151,11 +142,9 @@ async function loadAirQualityChart() {
             }
         }
 
-        // Ambil 10 data PALING AKHIR dari data yang sudah valid
         const recentTimes = validTimes.slice(-10);
         pm25Values = validPM25.slice(-10);
 
-        // Format waktu menjadi Jam:Menit (contoh: 14:00)
         labels = recentTimes.map(dateStr => {
             const date = new Date(dateStr);
             return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -170,14 +159,10 @@ async function loadAirQualityChart() {
         latestAQI = 65;
     }
 
-    // --- RENDER UI ---
-    
-    // Pastikan angka ditampilkan tanpa desimal berlebih jika ada
     let displayAQI = Math.round(latestAQI);
     let statusText = displayAQI > 50 ? "Tidak Sehat ⚠️" : "Sedang ☁️";
     document.getElementById('todayAQI').innerText = `${displayAQI} µg/m³ - ${statusText}`;
 
-    // Hapus grafik lama jika sudah ada (mencegah bug gambar bertumpuk jika di-refresh)
     if (window.myAirChart instanceof Chart) {
         window.myAirChart.destroy();
     }
@@ -220,16 +205,13 @@ async function loadAirQualityChart() {
         }
     });
 }
-// Di dalam assets/js/script.js
 function checkLoginUI() {
     const box = document.getElementById('loginBox');
-    if (!box) return; // Kalau tidak ketemu kotak login, berhenti
+    if (!box) return; 
 
-    // Cek apakah token ada (bukan sekadar user_id)
     const token = localStorage.getItem('token');
 
     if (token) {
-        // Ganti tampilan kotak login jadi tombol pintasan
         box.innerHTML = `
             <div style="text-align: center; padding: 20px;">
                 <h2>Selamat datang kembali, ${localStorage.getItem('user_name')}!</h2>
@@ -240,11 +222,9 @@ function checkLoginUI() {
         `;
     }
 }
-// --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
     loadNavbar();
     if (document.getElementById('product-list')) loadProducts();
-    // Tambahkan pemicu fungsi lain sesuai halaman...
     if (document.getElementById('airChart')) {
         loadAirQualityChart();
     }

@@ -27,7 +27,7 @@ const token = jwt.sign(
     { 
         id: user.id, 
         role: user.role, 
-        name: user.name // <--- INI WAJIB ADA SAAT LOGIN
+        name: user.name 
     }, 
     process.env.JWT_SECRET || 'secret_key',
     { expiresIn: '1h' }

@@ -197,7 +197,6 @@
 </div>
 
 <script>
-// 1. Auth Guard: Jika tidak login, arahkan ke login
 window.onload = async function() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -206,15 +205,12 @@ window.onload = async function() {
         return;
     }
 
-    // (Opsional) Ambil profil user untuk pre-fill input
-    // Fetch ke /users/profile menggunakan token
     try {
         const res = await fetch('http://localhost:3000/users/profile', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const user = await res.json();
         
-        // Auto-fill jika ada data
         if (user) {
             document.getElementById('name').value = user.name || '';
             document.getElementById('email').value = user.email || '';
@@ -223,23 +219,19 @@ window.onload = async function() {
         console.error("Gagal memuat profil");
     }
 
-    // Set UI User
     const userName = localStorage.getItem('user_name');
     if(userName) document.getElementById('userDisplayName').innerText = userName;
 };
 
-// 2. Submit Logic yang lebih bersih
 function submitForm() {
     const fields = ['name', 'age', 'gender', 'phone', 'email', 'job', 'health', 'address'];
     const formData = {
-        // Ambil ID produk dan paket dari URL atau localStorage
         product_id: new URLSearchParams(window.location.search).get('id') || localStorage.getItem('product_id'),
         package_type: new URLSearchParams(window.location.search).get('package') || "Basic"
     };
 
     let isComplete = true;
 
-    // Validasi input
     fields.forEach(field => {
         const val = document.getElementById(field).value.trim();
         if(!val) {
@@ -248,7 +240,6 @@ function submitForm() {
         formData[field] = val;
     });
 
-    // Validasi data produk
     if (!formData.product_id) {
         alert("ID Produk tidak ditemukan. Silakan pilih produk dari halaman Produk.");
         return;
@@ -259,10 +250,8 @@ function submitForm() {
         return;
     }
 
-    // Simpan ke localStorage
     localStorage.setItem('form_submission', JSON.stringify(formData));
     
-    // Pindah ke payment
     window.location.href = "payment.html";
 }
 </script>

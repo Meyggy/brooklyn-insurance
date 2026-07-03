@@ -40,7 +40,7 @@
             if (!res.ok) throw new Error('Akses ditolak atau gagal memuat data');
 
             const data = await res.json();
-            dataDiv.innerHTML = ""; // Bersihkan loading
+            dataDiv.innerHTML = ""; 
 
             if (data.length === 0) {
                 dataDiv.innerHTML = "<p>Tidak ada pesan.</p>";
@@ -51,7 +51,6 @@
                 const card = document.createElement('div');
                 card.className = 'msg-card';
 
-                // PERBAIKAN: Masukkan data m.sender_name dan m.message_text ke sini
                 card.innerHTML = `
         <div class="msg-header">${m.sender_name}</div>
         <div class="msg-body">${m.message_text}</div>

@@ -54,7 +54,7 @@ const getClaimById = async (req, res) => {
 
 const updateClaimStatus = async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body; // Frontend HTML mengirim 'Approved' atau 'Rejected'
+    const { status } = req.body; 
 
     try {
         const [result] = await db.query(

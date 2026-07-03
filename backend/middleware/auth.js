@@ -8,15 +8,13 @@ const auth = (req, res, next) => {
         return res.status(401).json({ success: false, message: 'Token tidak tersedia' });
     }
 
-// auth.js
 jwt.verify(token, process.env.JWT_SECRET || 'secret_key', (err, decoded) => {
     if (err) return res.status(403).json({ message: "Token tidak valid" });
     
-    // TAMBAHKAN name di sini
     req.user = { 
         id: decoded.id, 
         role: decoded.role,
-        name: decoded.name // <--- INI KUNCINYA
+        name: decoded.name 
     }; 
     next();
 
