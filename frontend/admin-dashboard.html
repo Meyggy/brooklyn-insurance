@@ -6,32 +6,200 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2e7d32; --bg: #f4f7f6; }
-        body { font-family: 'Poppins', sans-serif; display: flex; height: 100vh; margin: 0; background: var(--bg); }
-        .sidebar { width: 250px; background: #fff; border-right: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .nav-btn { display: block; width: 100%; padding: 12px; cursor: pointer; border: none; border-radius: 8px; background: #f0f0f0; text-align: left; }
-        .nav-btn.active { background: var(--primary); color: white; }
-        .section { display: none; }
-        .section.active { display: block; }
-        
-        /* Chat Style */
-        #chatBox { height: 400px; background: white; border: 1px solid #ddd; padding: 20px; overflow-y: auto; border-radius: 10px; margin-bottom: 10px; }
-        .msg { padding: 10px; margin-bottom: 10px; border-radius: 8px; max-width: 60%; }
-        .admin { background: #e8f5e9; align-self: flex-end; margin-left: auto; text-align: right; }
-        .user { background: #eee; }
-        
-        /* Table Style */
-        table { width: 100%; background: white; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
-    </style>
+:root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --bg: #f4f7f6;
+    --card: #ffffff;
+    --text: #333;
+    --gray: #eaeaea;
+}
+
+/* GLOBAL */
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background: var(--card);
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.sidebar h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+}
+
+.nav-btn {
+    width: 100%;
+    padding: 12px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: #f1f1f1;
+    text-align: left;
+    transition: 0.2s;
+    font-weight: 500;
+}
+
+.nav-btn:hover {
+    background: #e0e0e0;
+}
+
+.nav-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* MAIN */
+.main-content {
+    flex: 1;
+    padding: 40px; /* Tambahkan padding agar tidak mentok */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Membuat konten ke tengah horizontal */
+}
+
+/* SECTION */
+.section {
+    width: 100%;
+    max-width: 900px; /* Batasi lebar agar tidak terlalu panjang ke kanan */
+    background: var(--card);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+/* CHAT BOX */
+#chatBox {
+    height: 420px;
+    background: var(--card);
+    border: 1px solid #ddd;
+    padding: 20px;
+    overflow-y: auto;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* MESSAGE */
+.msg {
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    max-width: 65%;
+    word-wrap: break-word;
+    font-size: 14px;
+}
+
+.user {
+    background: #f0f0f0;
+}
+
+.admin {
+    background: #d7f5dd;
+    margin-left: auto;
+    text-align: right;
+}
+
+/* INPUT */
+input {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--primary);
+}
+
+/* BUTTON */
+button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    background: var(--primary);
+    color: white;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: var(--primary-dark);
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    background: var(--card);
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-top: 20px;
+}
+
+th {
+    background: #f8f9fa;
+    color: var(--primary);
+    padding: 16px;
+    font-weight: 600;
+}
+
+td {
+    padding: 14px;
+    border-top: 1px solid #eee;
+}
+
+/* STATUS */
+.status-pending { color: orange; font-weight: bold; }
+.status-approved { color: green; font-weight: bold; }
+.status-rejected { color: red; font-weight: bold; }
+
+/* SIDEBAR USER BUTTON */
+#userSidebar button {
+    background: #f1f1f1;
+    color: #333;
+    margin-top: 6px;
+}
+
+#userSidebar button:hover {
+    background: #ddd;
+}
+
+/* LOGOUT */
+.sidebar button[onclick*="logout"] {
+    background: transparent;
+    color: red;
+    font-weight: bold;
+}
+</style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <h3>Admin Panel</h3>
+    <h3>Admin Dashboard</h3>
     <button class="nav-btn active" onclick="switchTab('chatSection', this)">Chat Nasabah</button>
     <button class="nav-btn" onclick="switchTab('claimSection', this)">Data Klaim</button>
+    <button class="nav-btn" onclick="switchTab('polisSection', this)">Data Polis</button>
     <hr>
     <div id="userSidebar"><strong>Daftar Nasabah:</strong></div>
     <button onclick="localStorage.clear(); window.location.href='index.html'" style="margin-top:20px; color:red; border:none; background:none; cursor:pointer;">Logout</button>
@@ -50,32 +218,46 @@
     <div id="claimSection" class="section">
         <h2>Pengajuan Klaim</h2>
         <table>
-            <thead><tr><th>User</th><th>Produk</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>User</th><th>Policy ID</th><th>Deskripsi Klaim</th><th>Status</th><th>Aksi</th></tr></thead>
             <tbody id="claimBody"></tbody>
         </table>
     </div>
+    <div id="polisSection" class="section">
+    <h2>Data Polis Nasabah</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Premium</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="polisBody"></tbody>
+    </table>
+</div>
 </div>
 
+
 <script>
-    const socket = io("http://localhost:3000");
+    const socket = io("https://brooklyn-insurance-production.up.railway.app");
     const token = localStorage.getItem('token');
     
-    // STATE UNTUK CHAT
     let chatData = {}; 
     let currentTarget = null; 
 
-    // 1. Inisialisasi
     async function init() {
         if (!token) return window.location.href = 'login.html';
         socket.emit('join_room', 'Admin');
         await loadMessages();
         loadClaims();
+        loadPolis();
     }
 
-    // 2. LOGIKA CHAT YANG SUDAH DIPERBAIKI (Group by room_id)
     async function loadMessages() {
         try {
-            const res = await fetch('http://localhost:3000/messages', { 
+            const res = await fetch('https://brooklyn-insurance-production.up.railway.app/messages', { 
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) {
@@ -92,14 +274,12 @@
 
             data.forEach(m => {
                 const room = m.room_id; 
-                if (!room) return; // Abaikan data rusak
+                if (!room) return; 
 
                 if (!chatData[room]) {
                     chatData[room] = [];
-                    // Buat tombol sidebar hanya untuk nasabah
                     if (room !== 'Admin') addSidebarUser(room);
                 }
-                // Masukkan pesan ke dalam array kamar tersebut
                 chatData[room].push({ sender: m.sender_name, text: m.message_text });
             });
 
@@ -138,7 +318,6 @@
     }
 
     socket.on('receive_message', (data) => {
-        // data.user adalah pengirim. Jika admin, room-nya currentTarget. Jika nasabah, room-nya adalah data.user
         const room = data.user === 'Admin' ? currentTarget : data.user;
         
         if (!chatData[room]) {
@@ -156,40 +335,56 @@
             return;
         }
 
-        // Kirim via socket ke server
         socket.emit("admin_send_to_user", { target: currentTarget, user: 'Admin', text: input.value });
         
-        // Render manual di layar admin
         chatData[currentTarget].push({ sender: 'Admin', text: input.value });
         renderChat();
         input.value = "";
     }
 
-    // 3. LOGIKA KLAIM (Sudah disempurnakan)
-    async function loadClaims() {
-        try {
-            const res = await fetch('http://localhost:3000/claims', { headers: { 'Authorization': `Bearer ${token}` }});
-            if (!res.ok) throw new Error("Gagal memuat klaim");
-            
-            const claims = await res.json();
-            const body = document.getElementById('claimBody');
-            
-            body.innerHTML = claims.map(c => `
-                <tr>
-                    <td>${c.user_name}</td>
-                    <td>${c.product_id || '-'}</td>
-                    <td>${c.status}</td>
-                    <td>
-                        <button onclick="updateClaim(${c.id}, 'approved')">Approve</button>
-                        <button onclick="updateClaim(${c.id}, 'rejected')">Reject</button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch (err) { console.log(err) }
-    }
-
+async function loadClaims() {
+    try {
+        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/claims', { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const claims = await res.json();
+        const body = document.getElementById('claimBody');
+        
+        // Kita tambahkan kolom Description di sini
+        body.innerHTML = claims.map(c => `
+            <tr>
+                <td>${c.user_name}</td>
+                <td>${c.policy_id || '-'}</td>
+                <td>${c.description || '-'}</td> <td><span class="status-${c.status}">${c.status}</span></td>
+                <td>
+                    <button onclick="updateClaim(${c.id}, 'approved')">Approve</button>
+                    <button onclick="updateClaim(${c.id}, 'rejected')">Reject</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) { console.log(err) }
+}
+async function loadPolis() {
+    try {
+        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/policies', { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const policies = await res.json();
+        const body = document.getElementById('polisBody');
+        
+        body.innerHTML = policies.map(p => `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.user_id}</td>
+                <td>${p.product_id}</td>
+                <td>Rp ${p.premium}</td>
+                <td><span class="status-${p.status}">${p.status}</span></td>
+            </tr>
+        `).join('');
+    } catch (err) { console.error("Error load polis:", err); }
+}
     async function updateClaim(id, status) {
-        await fetch(`http://localhost:3000/claims/${id}`, {
+        await fetch(`https://brooklyn-insurance-production.up.railway.app/claims/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status })

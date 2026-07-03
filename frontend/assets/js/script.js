@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://brooklyn-insurance-production.up.railway.apprance-production.up.railway.app';
 
 // --- CORE: AUTH & API UTILITIES ---
 function getToken() { return localStorage.getItem('token'); }

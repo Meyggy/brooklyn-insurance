@@ -285,7 +285,7 @@ async function loadProducts() {
     container.innerHTML = `<p style="text-align:center; width:100%;">Memuat produk terbaik untuk Anda...</p>`;
 
     try {
-        const res = await fetch('http://localhost:3000/products', {
+        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/products', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 

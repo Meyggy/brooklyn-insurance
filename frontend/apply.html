@@ -209,7 +209,7 @@ window.onload = async function() {
     // (Opsional) Ambil profil user untuk pre-fill input
     // Fetch ke /users/profile menggunakan token
     try {
-        const res = await fetch('http://localhost:3000/users/profile', {
+        const res = await fetch('https://brooklyn-insurance-production.up.railway.app/users/profile', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const user = await res.json();

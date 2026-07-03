@@ -48,7 +48,7 @@
         async function loadPolicyOptions() {
             const select = document.getElementById('policy_id');
             try {
-                const res = await fetch('http://localhost:3000/policies/user', {
+                const res = await fetch('https://brooklyn-insurance-production.up.railway.app/policies/user', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -75,7 +75,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:3000/claims', {
+                const res = await fetch('https://brooklyn-insurance-production.up.railway.app/claims', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

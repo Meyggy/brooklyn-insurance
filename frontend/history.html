@@ -223,7 +223,7 @@ async function load() {
 
     try {
         // 1. Fetch Polis (Wajib ada)
-        const resPolicy = await fetch('http://localhost:3000/policies/user', {
+        const resPolicy = await fetch('https://brooklyn-insurance-production.up.railway.apprance-production.up.railway.app/policies/user', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -238,7 +238,7 @@ async function load() {
         // 2. Fetch Klaim (Dipisah agar error 500 tidak memutus alur)
         let claims = [];
         try {
-            const resClaim = await fetch('http://localhost:3000/claims', {
+            const resClaim = await fetch('https://brooklyn-insurance-production.up.railway.app/claims', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (resClaim.ok) {
