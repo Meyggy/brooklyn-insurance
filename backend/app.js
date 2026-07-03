@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const Message = require('./models/messageModel');
 const db = require('./config/db');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,7 +13,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: "*" }
 });
-
+app.use(express.static(path.join(__dirname, '../frontend')));
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
@@ -28,7 +29,7 @@ app.use('/messages', require('./routes/messageRoutes'));
 app.use('/admin', require('./routes/adminRoutes'));
 
 app.get('/', (req, res) => {
-    res.send('Brooklyn Insurance API Running');
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 io.on('connection', (socket) => {
